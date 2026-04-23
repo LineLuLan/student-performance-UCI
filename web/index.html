@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Risk Early Warning · UCI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+
+    <!-- ── Header ──────────────────────────────────────────────── -->
+    <header class="header">
+      <div class="header-left">
+        <h1 class="header-title">Student Risk <em>Early Warning</em></h1>
+        <span class="header-sub">UCI Student Performance · 1,044 students · Math &amp; Portuguese</span>
+      </div>
+      <div class="header-controls">
+        <div class="subject-toggle" id="subject-toggle">
+          <button class="subj-btn active" data-subj="all">Both</button>
+          <button class="subj-btn" data-subj="math">Math</button>
+          <button class="subj-btn" data-subj="portuguese">Portuguese</button>
+        </div>
+        <div class="divider-v"></div>
+        <div class="view-label">VIEW BY</div>
+        <div class="view-switcher" id="view-switcher"></div>
+        <div class="divider-v"></div>
+        <button id="theme-toggle" class="icon-btn" title="Toggle dark mode" aria-label="Toggle dark mode">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- ── KPI Bar ─────────────────────────────────────────────── -->
+    <div class="kpi-bar">
+      <div class="kpi-item">
+        <span class="kpi-label">TOTAL STUDENTS</span>
+        <span class="kpi-value" id="kpi-total">—</span>
+      </div>
+      <div class="kpi-sep"></div>
+      <div class="kpi-item">
+        <span class="kpi-label">AVG FINAL GRADE</span>
+        <span class="kpi-value" id="kpi-grade">— <span class="kpi-unit">/20</span></span>
+      </div>
+      <div class="kpi-sep"></div>
+      <div class="kpi-item">
+        <span class="kpi-label">PASS RATE (G3≥10)</span>
+        <span class="kpi-value" id="kpi-pass">—<span class="kpi-unit">%</span></span>
+      </div>
+      <div class="kpi-sep"></div>
+      <div class="kpi-item">
+        <span class="kpi-label">AVG ABSENCES</span>
+        <span class="kpi-value" id="kpi-absent">— <span class="kpi-unit">days</span></span>
+      </div>
+      <div class="kpi-sep"></div>
+      <div class="kpi-item kpi-item--accent" id="kpi-risk-item">
+        <span class="kpi-label">AT-RISK STUDENTS</span>
+        <span class="kpi-value" id="kpi-risk">—<span class="kpi-unit">%</span></span>
+      </div>
+      <div class="kpi-sep"></div>
+      <div class="kpi-item">
+        <span class="kpi-label">TOP RISK FACTOR</span>
+        <span class="kpi-value kpi-value--sm" id="kpi-factor">—</span>
+      </div>
+    </div>
+
+    <!-- ── Insight strip + Chip filter ────────────────────────── -->
+    <div class="controls-bar">
+      <div class="insight-strip" id="insight-strip">
+        <span class="insight-icon">◆</span>
+        <span class="insight-label" id="insight-label">—</span>
+        <span class="insight-stat" id="insight-stat"></span>
+        <span class="insight-desc" id="insight-desc"></span>
+      </div>
+      <div class="chip-bar" id="chip-bar"></div>
+    </div>
+
+    <!-- ── Main Grid ───────────────────────────────────────────── -->
+    <main>
+      <div class="grid">
+
+        <!-- Card 1: Grade Correlation Scatter -->
+        <div class="card" id="card-scatter">
+          <div class="card-header">
+            <div class="card-header-top">
+              <div>
+                <div class="card-tag">Grade Correlation</div>
+                <h2 class="card-title" id="scatter-title">Midterm G1 vs Final Grade G3</h2>
+              </div>
+              <div class="card-hint">← click factor in Key Drivers</div>
+            </div>
+          </div>
+          <div class="card-body" id="container-scatter"></div>
+        </div>
+
+        <!-- Card 2: Risk Factors Lollipop -->
+        <div class="card" id="card-importance">
+          <div class="card-header">
+            <div class="card-header-top">
+              <div>
+                <div class="card-tag">Risk Factors</div>
+                <h2 class="card-title">Key Drivers of Final Grade</h2>
+              </div>
+              <div class="card-badge" style="color:var(--accent-blue);background:color-mix(in srgb,var(--accent-blue) 10%,transparent)">Pearson r · Real Data</div>
+            </div>
+          </div>
+          <div class="card-body" id="container-importance"></div>
+        </div>
+
+        <!-- Card 3: K-Means Behavioral Profiles -->
+        <div class="card" id="card-radar">
+          <div class="card-header">
+            <div class="card-header-top">
+              <div>
+                <div class="card-tag">K-Means Clustering</div>
+                <h2 class="card-title">Student Behavioral Profiles</h2>
+              </div>
+              <div class="card-badge" style="color:var(--accent-purple);background:color-mix(in srgb,var(--accent-purple) 10%,transparent)">ML · 3 Clusters</div>
+            </div>
+          </div>
+          <div class="card-body" id="container-personas"></div>
+        </div>
+
+        <!-- Card 4: RF Risk Engine -->
+        <div class="card" id="card-bar">
+          <div class="card-header">
+            <div class="card-header-top">
+              <div>
+                <div class="card-tag">Random Forest Classifier</div>
+                <h2 class="card-title">Dropout Risk Predictor</h2>
+              </div>
+              <div class="card-badge" style="color:var(--accent-green);background:color-mix(in srgb,var(--accent-green) 10%,transparent)">ML · 91.4% Accuracy</div>
+            </div>
+            <div class="card-badge-amber">
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><circle cx="5" cy="5" r="4.5" fill="none" stroke="currentColor" stroke-width="1.2"/><line x1="5" y1="2.5" x2="5" y2="5.5" stroke="currentColor" stroke-width="1.2"/><circle cx="5" cy="7" r="0.7"/></svg>
+              Static ML Model Snapshot
+            </div>
+          </div>
+          <div class="card-body" id="container-risk"></div>
+        </div>
+
+        <!-- Card 5: Grade Progression (enhanced) -->
+        <div class="card" id="card-env">
+          <div class="card-header">
+            <div class="card-header-top">
+              <div>
+                <div class="card-tag">Grade Trajectory</div>
+                <h2 class="card-title">Period-by-Period Progression</h2>
+              </div>
+              <select class="chart-select" id="progression-select">
+                <option value="sex">Gender</option>
+                <option value="school">School</option>
+                <option value="subject">Subject</option>
+                <option value="internet">Internet</option>
+                <option value="higher">Higher Edu Goal</option>
+              </select>
+            </div>
+          </div>
+          <div class="card-body" id="container-progression"></div>
+        </div>
+
+        <!-- Card 6: Grade Distribution -->
+        <div class="card" id="card-extra">
+          <div class="card-header">
+            <div class="card-header-top">
+              <div>
+                <div class="card-tag">Score Distribution</div>
+                <h2 class="card-title">Grade Distribution</h2>
+              </div>
+              <div class="toggle-group" id="grade-toggle">
+                <button class="tgl-btn" data-grade="grade_mid1">G1</button>
+                <button class="tgl-btn" data-grade="grade_mid2">G2</button>
+                <button class="tgl-btn active" data-grade="grade_final">G3</button>
+              </div>
+            </div>
+          </div>
+          <div class="card-body" id="container-histogram"></div>
+        </div>
+
+      </div>
+    </main>
+
+  </div><!-- #app -->
+
+  <!-- Global tooltip -->
+  <div id="tooltip" class="tooltip" role="tooltip" aria-live="polite"></div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>

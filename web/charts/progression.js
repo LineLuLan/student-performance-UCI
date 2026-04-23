@@ -1,0 +1,182 @@
+import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+
+const GROUP_CONFIG = {
+  sex:      { values: ["f","m"],      labels: ["Female","Male"],      colors: ["var(--accent-purple)","var(--accent-blue)"] },
+  school:   { values: ["gp","ms"],    labels: ["Gabriel Pereira","MS Silveira"], colors: ["var(--accent-blue)","var(--accent-green)"] },
+  subject:  { values: ["math","portuguese"], labels: ["Math","Portuguese"], colors: ["var(--accent-yellow)","var(--accent-blue)"] },
+  internet: { values: [1,0],          labels: ["Has Internet","No Internet"], colors: ["var(--accent-green)","var(--accent-red)"] },
+  higher:   { values: [1,0],          labels: ["Wants Higher Edu","No Goal"],  colors: ["var(--accent-blue)","var(--text-muted)"] },
+};
+
+const PERIODS = [
+  { key: "grade_mid1",  label: "G1 (Period 1)" },
+  { key: "grade_mid2",  label: "G2 (Period 2)" },
+  { key: "grade_final", label: "G3 (Final)" },
+];
+
+export function drawProgression(data, groupBy = "sex") {
+  const container = d3.select("#container-progression");
+  container.selectAll("*").interrupt().remove();
+  if (!data || data.length === 0) {
+    container.append("div").style("padding","20px").style("color","var(--text-muted)").text("No data.");
+    return;
+  }
+
+  const { width, height } = container.node().getBoundingClientRect();
+  if (width < 40 || height < 40) return;
+
+  const cfg = GROUP_CONFIG[groupBy] || GROUP_CONFIG.sex;
+  const maxLabelLen = d3.max(cfg.labels, l => l.split(" ")[0].length) * 7 + 16;
+  const margin = { top: 22, right: Math.max(60, maxLabelLen), bottom: 36, left: 38 };
+  const W = width  - margin.left - margin.right;
+  const H = height - margin.top  - margin.bottom;
+
+  // ── Pre-compute stats for ALL groups first (needed for tight Y-domain) ──
+  const groupStats = cfg.values.map((val, gi) => {
+    const grp = data.filter(d => String(d[groupBy]) === String(val));
+    if (grp.length === 0) return null;
+    const stats = PERIODS.map(p => {
+      const vals = grp.map(d => d[p.key]).filter(v => !isNaN(v));
+      const mu = d3.mean(vals) || 0;
+      const sd = d3.deviation(vals) || 0;
+      return { p: p.key, mu, sd, lo: mu - sd, hi: mu + sd, n: vals.length };
+    });
+    return { val, gi, color: cfg.colors[gi], stats };
+  }).filter(Boolean);
+
+  // Tight Y-domain: span the actual std-band range + 1 grade margin, clamped [0,20]
+  let yLo = Infinity, yHi = -Infinity;
+  groupStats.forEach(({ stats }) => stats.forEach(s => {
+    yLo = Math.min(yLo, s.lo);
+    yHi = Math.max(yHi, s.hi);
+  }));
+  const yMin = isFinite(yLo) ? Math.max(0,  Math.floor(yLo) - 1) : 0;
+  const yMax = isFinite(yHi) ? Math.min(20, Math.ceil(yHi)  + 1) : 20;
+
+  const xScale = d3.scalePoint().domain(PERIODS.map(p=>p.key)).range([0, W]).padding(0.4);
+  const yScale = d3.scaleLinear().domain([yMin, yMax]).range([H, 0]);
+
+  const svg = container.append("svg")
+    .attr("width", width).attr("height", height)
+    .append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+  svg.append("defs").append("clipPath").attr("id","prog-clip")
+    .append("rect").attr("width",W).attr("height",H);
+
+  // Grid lines — minimal, 3 reference lines max
+  svg.append("g").selectAll("line").data(yScale.ticks(3)).join("line")
+    .attr("class","grid-line").attr("x1",0).attr("x2",W)
+    .attr("y1",d=>yScale(d)).attr("y2",d=>yScale(d));
+
+  // Pass threshold — only if 10 is within domain
+  if (yMin <= 10 && 10 <= yMax) {
+    svg.append("line")
+      .attr("x1",0).attr("x2",W).attr("y1",yScale(10)).attr("y2",yScale(10))
+      .attr("stroke","var(--accent-red)").attr("stroke-dasharray","4,4")
+      .attr("stroke-width",1).attr("opacity",0.4);
+    svg.append("text")
+      .attr("x", 4).attr("y", yScale(10) - 3)
+      .style("font-family","var(--font-mono)").style("font-size","8px")
+      .style("fill","var(--accent-red)").style("opacity","0.6")
+      .text("PASS ≥10");
+  }
+
+  // ── Spaghetti background — fewer lines, more subtle ─────────
+  const sample = data.length > 120 ? d3.shuffle([...data]).slice(0,120) : data;
+  const lineGen     = d3.line().x(d=>xScale(d.p)).y(d=>yScale(d.v)).defined(d=>!isNaN(d.v) && d.v >= yMin);
+  const meanLineGen = d3.line().x(d=>xScale(d.p)).y(d=>yScale(d.mu));
+
+  svg.append("g").attr("clip-path","url(#prog-clip)")
+    .selectAll("path").data(sample).join("path")
+    .attr("class","spaghetti-line")
+    .attr("d", d => lineGen(PERIODS.map(p => ({ p: p.key, v: d[p.key] }))))
+    .attr("stroke","var(--text-muted)").attr("stroke-width",0.6).attr("opacity",0.05);
+
+  // ── Group mean lines & std bands ─────────────────────────────
+  const tooltip = d3.select("#tooltip");
+
+  groupStats.forEach(({ val, gi, color, stats }) => {
+    // Std dev band — higher opacity for readability
+    const areaGen = d3.area()
+      .x(d => xScale(d.p))
+      .y0(d => yScale(Math.max(yMin, d.lo)))
+      .y1(d => yScale(Math.min(yMax, d.hi)));
+    svg.append("path")
+      .datum(stats)
+      .attr("class","std-band")
+      .attr("d", areaGen)
+      .attr("fill", color)
+      .style("opacity", "0.15");
+
+    // Mean line
+    svg.append("path")
+      .datum(stats)
+      .attr("class","mean-line")
+      .attr("d", meanLineGen(stats))
+      .attr("stroke", color)
+      .attr("stroke-width", 3);
+
+    // Dots — no grade labels, just tooltip on hover
+    stats.forEach((s, pi) => {
+      svg.append("circle").attr("class","mean-dot")
+        .attr("cx", xScale(s.p)).attr("cy", yScale(s.mu))
+        .attr("r", 6).attr("fill", color).attr("stroke","var(--surface)").attr("stroke-width",2.5)
+        .on("mouseover", function(event) {
+          const trend = pi > 0 ? (s.mu - stats[pi-1].mu).toFixed(2) : null;
+          tooltip.style("opacity",1)
+            .style("left",(event.clientX+14)+"px").style("top",(event.clientY-10)+"px")
+            .html(`
+              <div class="tt-header" style="color:${color}">${cfg.labels[gi]} · ${PERIODS[pi].label}</div>
+              <div class="tt-grid">
+                <span class="tt-label">Mean grade</span><span class="tt-val">${s.mu.toFixed(2)}/20</span>
+                <span class="tt-label">Std dev</span><span class="tt-val">±${s.sd.toFixed(2)}</span>
+                <span class="tt-label">N students</span><span class="tt-val">${s.n}</span>
+                ${trend!==null?`<span class="tt-label">Change</span><span class="tt-val" style="color:${+trend>=0?"var(--accent-green)":"var(--accent-red)"}">${+trend>=0?"+":""}${trend}</span>`:""}
+              </div>
+            `);
+        })
+        .on("mousemove", event => tooltip.style("left",(event.clientX+14)+"px").style("top",(event.clientY-10)+"px"))
+        .on("mouseout", () => tooltip.style("opacity",0));
+    });
+
+    // End label in right margin
+    const lastS = stats[2];
+    svg.append("text")
+      .attr("x", xScale(lastS.p) + 10).attr("y", yScale(lastS.mu) + 4)
+      .style("font-family","var(--font-body)").style("font-size","10px").style("font-weight","600")
+      .style("fill", color)
+      .text(cfg.labels[gi].split(" ")[0]);
+    svg.append("line")
+      .attr("x1", xScale(lastS.p) + 6).attr("x2", xScale(lastS.p) + 9)
+      .attr("y1", yScale(lastS.mu)).attr("y2", yScale(lastS.mu))
+      .attr("stroke", color).attr("stroke-width", 1.5).attr("opacity", 0.6);
+  });
+
+  // ── Axes ─────────────────────────────────────────────────────
+  svg.append("g").attr("class","axis").attr("transform",`translate(0,${H})`).call(
+    d3.axisBottom(xScale).tickFormat(d => {
+      const p = PERIODS.find(pp=>pp.key===d);
+      return p ? p.label : d;
+    }).tickSizeOuter(0)
+  );
+  svg.append("g").attr("class","axis").call(
+    d3.axisLeft(yScale).ticks(5).tickSizeOuter(0)
+  );
+
+  svg.append("text").attr("transform","rotate(-90)")
+    .attr("x",-H/2).attr("y",-28).attr("text-anchor","middle")
+    .style("font-family","var(--font-mono)").style("font-size","9px").style("font-weight","600")
+    .style("fill","var(--text-muted)").text("AVERAGE GRADE");
+
+  // Overall trend annotation
+  const g1mean = d3.mean(data, d => d.grade_mid1) || 0;
+  const g3mean = d3.mean(data, d => d.grade_final) || 0;
+  const diff   = g3mean - g1mean;
+  svg.append("text")
+    .attr("x", W - 4).attr("y", 10)
+    .attr("text-anchor","end")
+    .style("font-family","var(--font-mono)").style("font-size","9px")
+    .style("fill", diff >= 0 ? "var(--accent-green)" : "var(--accent-red)")
+    .text(`G1→G3: ${diff>=0?"+":""}${diff.toFixed(2)}`);
+}
+
