@@ -29,7 +29,8 @@ export function drawScatter(data, xField = "grade_mid1") {
   const { width, height } = container.node().getBoundingClientRect();
   if (width < 40 || height < 40) return;
 
-  const margin = { top: 14, right: 20, bottom: 40, left: 44 };
+  // Increased top margin to host the r/R² + legend strip above the chart
+  const margin = { top: 26, right: 20, bottom: 40, left: 44 };
   const W = width  - margin.left - margin.right;
   const H = height - margin.top  - margin.bottom;
 
@@ -50,9 +51,9 @@ export function drawScatter(data, xField = "grade_mid1") {
   const colorMap = {};
   allVals.forEach((v, i) => colorMap[v] = viewColors[i % viewColors.length]);
 
-  const svg = container.append("svg")
-    .attr("width", width).attr("height", height)
-    .append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+  // Keep a reference to the SVG element so we can draw the top strip on it directly
+  const svgEl = container.append("svg").attr("width", width).attr("height", height);
+  const svg   = svgEl.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
   // Grid lines
   svg.append("g").attr("class","grid-lines")
@@ -74,7 +75,7 @@ export function drawScatter(data, xField = "grade_mid1") {
     .style("fill","var(--accent-red)").style("opacity","0.7")
     .text("PASS THRESHOLD");
 
-  // Regression line & R²
+  // Regression line only (annotation moves to top strip)
   const reg = linearRegression(data, xField);
   if (reg) {
     const x1 = xScale.domain()[0], x2 = xScale.domain()[1];
@@ -82,18 +83,9 @@ export function drawScatter(data, xField = "grade_mid1") {
       .attr("x1",xScale(x1)).attr("y1",yScale(reg.slope*x1 + reg.intercept))
       .attr("x2",xScale(x2)).attr("y2",yScale(reg.slope*x2 + reg.intercept))
       .attr("stroke","var(--text-muted)");
-    // R² annotation — bottom-left to avoid overlapping dots at top
-    const annY = H - 6;
-    svg.append("rect")
-      .attr("x",0).attr("y",annY-11).attr("width",150).attr("height",14)
-      .attr("fill","var(--surface)").attr("opacity",0.75).attr("rx",3);
-    svg.append("text").attr("class","r2-label")
-      .attr("x",4).attr("y",annY)
-      .style("fill","var(--text-muted)")
-      .text(`r = ${reg.r.toFixed(3)}  ·  R² = ${(reg.r**2).toFixed(3)}`);
   }
 
-  // Scatter dots — larger jitter + lower opacity to reveal density in overlapping columns
+  // Scatter dots
   const jitter = d3.randomNormal(0, 0.35);
   const tooltip = d3.select("#tooltip");
 
@@ -140,35 +132,43 @@ export function drawScatter(data, xField = "grade_mid1") {
   svg.append("g").attr("class","axis").call(
     d3.axisLeft(yScale).ticks(5).tickSizeOuter(0)
   );
-  // X axis label
   svg.append("text").attr("x", W/2).attr("y", H + 34)
     .attr("text-anchor","middle")
     .style("font-family","var(--font-mono)").style("font-size","10px").style("font-weight","600")
     .style("fill","var(--text-muted)").text(xLabel.toUpperCase());
-  // Y axis label
   svg.append("text").attr("transform","rotate(-90)")
     .attr("x",-H/2).attr("y",-34).attr("text-anchor","middle")
     .style("font-family","var(--font-mono)").style("font-size","10px").style("font-weight","600")
     .style("fill","var(--text-muted)").text("FINAL GRADE (G3)");
 
-  // Legend — top-right, shows human-readable labels
-  const legendData = allVals.filter(v => data.some(d => String(d[viewField])===v));
-  const lgH = legendData.length * 16 + 4;
-  const lg = svg.append("g").attr("transform",`translate(${W - 4},${8})`);
-  // background pill
-  const lgMaxLabelW = d3.max(legendData, v => (labelMap[v]||v).length) * 6.5 + 22;
-  lg.append("rect")
-    .attr("x", -lgMaxLabelW).attr("y", -2).attr("width", lgMaxLabelW).attr("height", lgH)
-    .attr("fill","var(--surface)").attr("opacity",0.75).attr("rx",4);
-  legendData.forEach((v, i) => {
-    const g = lg.append("g").attr("transform",`translate(0,${i*16 + 8})`);
-    g.append("circle").attr("cx",-lgMaxLabelW+6).attr("cy",0).attr("r",4)
-      .attr("fill", colorMap[v]);
-    g.append("text").attr("x",-lgMaxLabelW+14).attr("y",4)
-      .attr("text-anchor","start")
+  // ── Top strip: r/R² left + legend right ────────────────────────
+  // Drawn on the SVG root (not the chart g) so they sit above the plot area.
+  const stripY = 16; // text baseline
+
+  if (reg) {
+    svgEl.append("text").attr("class","r2-label")
+      .attr("x", margin.left).attr("y", stripY)
+      .style("font-family","var(--font-body)").style("font-size","10px").style("font-weight","600")
+      .style("fill","var(--text-muted)")
+      .text(`r = ${reg.r.toFixed(3)}  ·  R² = ${(reg.r**2).toFixed(3)}`);
+  }
+
+  // Horizontal legend, right-aligned: iterate items right-to-left
+  const legendData = allVals.filter(v => data.some(d => String(d[viewField]) === v));
+  let lgX = width - 8;
+  [...legendData].reverse().forEach(v => {
+    const lbl = labelMap[v] || v;
+    svgEl.append("text")
+      .attr("x", lgX).attr("y", stripY)
+      .attr("text-anchor", "end")
       .style("font-family","var(--font-body)").style("font-size","10.5px").style("font-weight","600")
       .style("fill","var(--text-secondary)")
-      .text(labelMap[v] || v);
+      .text(lbl);
+    const estW = lbl.length * 6.0;
+    svgEl.append("circle")
+      .attr("cx", lgX - estW - 8).attr("cy", stripY - 4).attr("r", 4)
+      .attr("fill", colorMap[v]);
+    lgX -= estW + 22;
   });
 }
 

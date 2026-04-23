@@ -122,10 +122,13 @@ Nothing below 9px for any visible text.
 - Dot: radius `2.5`, opacity `0.45`, jitter `d3.randomNormal(0, 0.35)` — large jitter needed because grades are integers, σ=0.18 is invisible
 - Hover: radius `5`, opacity `1`
 - Do not add inline value labels to dots — tooltip is sufficient
+- `margin.top = 26` to host a **top strip** (r/R² left, legend right) drawn on `svgEl` (SVG root), NOT on the chart `g`. This keeps both items above the plot area and out of the dot cloud.
+- SVG creation: always split into `svgEl` (the `<svg>` element) and `svg` (the inner `<g>` with translate). Top-strip elements append to `svgEl`; chart elements append to `svg`.
+- Legend is horizontal right-aligned in the top strip, built right-to-left with `text-anchor="end"` and ~6px-per-char width estimate.
 
 ### importance.js
-- Direction annotations ("BOOSTS GRADE →" / "← LOWERS GRADE") live at `y = -2` (top margin of SVG, above all data points, never overlaps)
-- All text uses `var(--font-body)` including r-value labels and annotations
+- No direction text annotations. Instead: a legend box (`"Boost Grade"` green + `"Lower Grade"` red) lives in the **right margin** at `translate(W + 4, 8)` — `margin.right = 80` provides enough room. Box is 76px wide, entirely outside the chart plot area.
+- All text uses `var(--font-body)` including r-value labels
 
 ### progression.js
 - Y-axis is **dynamic** (tight): pre-compute min(mean−sd) and max(mean+sd) across all groups and periods, clamp to [0,20], add ±1 margin. Never use fixed `[0, 20]` — it makes group differences invisible
@@ -144,3 +147,9 @@ Nothing below 9px for any visible text.
 
 ### personas.js
 - Social Risk Group color: `var(--accent-orange)` — not red
+- **Interactive tab design**: 3 cluster tabs (F / A / S) at top with underline indicator (`border-bottom: 3px solid [color]`). Clicking the active tab deselects → reverts to "All Students" (weighted averages). Module-level `let activeCluster = null` persists the selection across re-renders (e.g. window resize).
+- Tab row uses `box-shadow: inset 0 -1px 0 var(--border)` instead of `border-bottom` to create the baseline. This lets the active tab's 3px border paint ON TOP of the 1px shadow — avoiding a visible double-line. **Never switch back to `border-bottom` on the tabRow without re-adding `margin-bottom: -1px` to tabs.**
+- `CLUSTERS[]` now includes `health` and `freetime` fields (estimated per-cluster means, not K-Means variables). `ALL` object holds weighted averages across all three clusters.
+- `ATTRS[]` ordered: Study Time, Absences, Goes Out, Alcohol (K-Means vars), then Health Status, Free Time.
+- Dynamic attr count: `nAttrs = Math.min(5, Math.max(4, Math.floor((height - 190) / 30)))` — shows 4 when card is short, up to 5 when taller. Fixed chrome reservation is ~190px.
+- `renderStats(panel, data, total, tooltip, attrsToShow)` is a standalone function (not exported). Each attr row shows label + value on **one line** (`"Study Time: 3.3/4"`), progress bar below (height 6px, border-radius 20px).

@@ -110,15 +110,20 @@ export function drawImportance(data, activeField = "grade_mid1") {
     .style("font-weight", d => d.key===activeField ? "700" : "500")
     .text(d => d.label);
 
-  // Direction annotations — top margin, centered in each half, no overlap with data
-  const midPos = (xScale(-maxAbs*1.05) + xScale(0)) / 2;
-  const midNeg = (xScale(0) + xScale(maxAbs*1.05)) / 2;
-  svg.append("text")
-    .attr("x", midNeg).attr("y", -2).attr("text-anchor","middle")
-    .style("font-family","var(--font-body)").style("font-size","9px").style("fill","var(--accent-green)").style("opacity","0.75")
-    .text("BOOSTS GRADE →");
-  svg.append("text")
-    .attr("x", midPos).attr("y", -2).attr("text-anchor","middle")
-    .style("font-family","var(--font-body)").style("font-size","9px").style("fill","var(--accent-red)").style("opacity","0.75")
-    .text("← LOWERS GRADE");
+  // Legend — right margin, top-aligned, fully outside chart area
+  const lgG = svg.append("g").attr("transform", `translate(${W + 4}, ${8})`);
+  lgG.append("rect")
+    .attr("x", 0).attr("y", -2).attr("width", 76).attr("height", 34)
+    .attr("fill", "var(--surface)").attr("opacity", 0.9).attr("rx", 4)
+    .attr("stroke", "var(--border)").attr("stroke-width", 0.5);
+  lgG.append("circle").attr("cx", 6).attr("cy", 9).attr("r", 4)
+    .attr("fill", "var(--accent-green)");
+  lgG.append("text").attr("x", 14).attr("y", 13)
+    .style("font-family", "var(--font-body)").style("font-size", "9px").style("font-weight", "600")
+    .style("fill", "var(--accent-green)").text("Boost Grade");
+  lgG.append("circle").attr("cx", 6).attr("cy", 23).attr("r", 4)
+    .attr("fill", "var(--accent-red)");
+  lgG.append("text").attr("x", 14).attr("y", 27)
+    .style("font-family", "var(--font-body)").style("font-size", "9px").style("font-weight", "600")
+    .style("fill", "var(--accent-red)").text("Lower Grade");
 }
