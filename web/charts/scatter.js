@@ -29,8 +29,7 @@ export function drawScatter(data, xField = "grade_mid1") {
   const { width, height } = container.node().getBoundingClientRect();
   if (width < 40 || height < 40) return;
 
-  // Increased top margin to host the r/R² + legend strip above the chart
-  const margin = { top: 26, right: 20, bottom: 40, left: 44 };
+  const margin = { top: 10, right: 20, bottom: 40, left: 44 };
   const W = width  - margin.left - margin.right;
   const H = height - margin.top  - margin.bottom;
 
@@ -141,35 +140,27 @@ export function drawScatter(data, xField = "grade_mid1") {
     .style("font-family","var(--font-mono)").style("font-size","10px").style("font-weight","600")
     .style("fill","var(--text-muted)").text("FINAL GRADE (G3)");
 
-  // ── Top strip: r/R² left + legend right ────────────────────────
-  // Drawn on the SVG root (not the chart g) so they sit above the plot area.
-  const stripY = 16; // text baseline
+  // ── Header stat: r / R² ─────────────────────────────────────────
+  const statEl = document.getElementById("scatter-stat");
+  if (statEl) statEl.textContent = reg ? `r = ${reg.r.toFixed(3)}  ·  R² = ${(reg.r**2).toFixed(3)}` : "";
 
-  if (reg) {
-    svgEl.append("text").attr("class","r2-label")
-      .attr("x", margin.left).attr("y", stripY)
-      .style("font-family","var(--font-body)").style("font-size","10px").style("font-weight","600")
-      .style("fill","var(--text-muted)")
-      .text(`r = ${reg.r.toFixed(3)}  ·  R² = ${(reg.r**2).toFixed(3)}`);
+  // ── Header legend ───────────────────────────────────────────────
+  const legendEl = document.getElementById("scatter-legend");
+  if (legendEl) {
+    legendEl.innerHTML = "";
+    const legendData = allVals.filter(v => data.some(d => String(d[viewField]) === v));
+    legendData.forEach(v => {
+      const lbl = labelMap[v] || v;
+      const item = document.createElement("span");
+      item.className = "scatter-legend-item";
+      const dot = document.createElement("span");
+      dot.className = "scatter-legend-dot";
+      dot.style.backgroundColor = colorMap[v];
+      item.appendChild(dot);
+      item.appendChild(document.createTextNode(lbl));
+      legendEl.appendChild(item);
+    });
   }
-
-  // Horizontal legend, right-aligned: iterate items right-to-left
-  const legendData = allVals.filter(v => data.some(d => String(d[viewField]) === v));
-  let lgX = width - 8;
-  [...legendData].reverse().forEach(v => {
-    const lbl = labelMap[v] || v;
-    svgEl.append("text")
-      .attr("x", lgX).attr("y", stripY)
-      .attr("text-anchor", "end")
-      .style("font-family","var(--font-body)").style("font-size","10.5px").style("font-weight","600")
-      .style("fill","var(--text-secondary)")
-      .text(lbl);
-    const estW = lbl.length * 6.0;
-    svgEl.append("circle")
-      .attr("cx", lgX - estW - 8).attr("cy", stripY - 4).attr("r", 4)
-      .attr("fill", colorMap[v]);
-    lgX -= estW + 22;
-  });
 }
 
 function linearRegression(data, xField) {

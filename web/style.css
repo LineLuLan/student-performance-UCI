@@ -387,6 +387,38 @@ main {
   flex-shrink: 0;
   padding-top: 2px;
 }
+.card-header-sub {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 5px;
+}
+#scatter-stat {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+#scatter-legend {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.scatter-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-body);
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.scatter-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
 .card-body {
   flex: 1;
   min-height: 0;
