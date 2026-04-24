@@ -34,7 +34,7 @@ export function drawRisk() {
 
   // Headline
   left.append("div")
-    .style("font-family","var(--font-mono)").style("font-size","9px").style("font-weight","700")
+    .style("font-family","var(--font-mono)").style("font-size","10.5px").style("font-weight","700")
     .style("color","var(--text-muted)").style("text-transform","uppercase")
     .style("letter-spacing","0.06em").text("CONFUSION MATRIX · n=209 test");
 
@@ -53,7 +53,7 @@ export function drawRisk() {
   predRow.append("div").style("width","60px").style("flex-shrink","0"); // spacer
   predRow.append("div")
     .style("flex","1").style("text-align","center")
-    .style("font-family","var(--font-body)").style("font-size","8px").style("font-weight","700")
+    .style("font-family","var(--font-body)").style("font-size","10px").style("font-weight","700")
     .style("color","var(--text-muted)").style("letter-spacing","0.08em").style("text-transform","uppercase")
     .text("← PREDICTED →");
 
@@ -64,12 +64,12 @@ export function drawRisk() {
   colHdr.append("div")
     .style("display","flex").style("align-items","flex-end").style("justify-content","flex-end")
     .style("padding-right","4px").style("padding-bottom","2px")
-    .style("font-family","var(--font-body)").style("font-size","8px").style("font-weight","700")
+    .style("font-family","var(--font-body)").style("font-size","10px").style("font-weight","700")
     .style("color","var(--text-muted)").style("letter-spacing","0.08em").style("text-transform","uppercase")
     .text("ACTUAL ↓");
   ["Pass", "Risk"].forEach(t => {
     colHdr.append("div")
-      .style("font-family","var(--font-body)").style("font-size","8.5px").style("font-weight","700")
+      .style("font-family","var(--font-body)").style("font-size","11px").style("font-weight","700")
       .style("color","var(--text-muted)").style("text-align","center")
       .style("padding","2px 0").text(t);
   });
@@ -91,7 +91,7 @@ export function drawRisk() {
     rowDiv.append("div")
       .style("display","flex").style("align-items","center").style("justify-content","flex-end")
       .style("padding-right","4px")
-      .style("font-family","var(--font-body)").style("font-size","8.5px").style("font-weight","700")
+      .style("font-family","var(--font-body)").style("font-size","11px").style("font-weight","700")
       .style("color","var(--text-muted)").style("white-space","nowrap")
       .text(row.rowLabel);
     row.cells.forEach(c => cmCell(rowDiv, c.val, c.label, c.color, c.bg, c.desc));
@@ -103,7 +103,7 @@ export function drawRisk() {
     .style("width","120px").style("flex-shrink","0");
 
   right.append("div")
-    .style("font-family","var(--font-mono)").style("font-size","9px").style("font-weight","700")
+    .style("font-family","var(--font-mono)").style("font-size","10.5px").style("font-weight","700")
     .style("color","var(--text-muted)").style("text-transform","uppercase")
     .style("letter-spacing","0.06em").text("MODEL METRICS");
 
@@ -142,10 +142,10 @@ export function drawRisk() {
     const labelRow = row.append("div")
       .style("display","flex").style("justify-content","space-between");
     labelRow.append("span")
-      .style("font-family","var(--font-mono)").style("font-size","9px").style("color","var(--text-muted)").style("font-weight","600")
+      .style("font-family","var(--font-mono)").style("font-size","10.5px").style("color","var(--text-muted)").style("font-weight","600")
       .text(m.label.toUpperCase());
     labelRow.append("span")
-      .style("font-family","var(--font-mono)").style("font-size","10px").style("font-weight","700")
+      .style("font-family","var(--font-mono)").style("font-size","11.5px").style("font-weight","700")
       .style("color", m.color)
       .text(`${(m.val*100).toFixed(1)}%`);
 
@@ -161,7 +161,7 @@ export function drawRisk() {
   // Feature importance note
   right.append("div")
     .style("margin-top","auto")
-    .style("font-family","var(--font-mono)").style("font-size","8.5px")
+    .style("font-family","var(--font-mono)").style("font-size","10.5px")
     .style("color","var(--text-muted)").style("line-height","1.4")
     .html("Top features:<br><b>G2 > G1 > Failures</b>");
 }
@@ -195,8 +195,8 @@ function cmCell(parent, value, label, color, bgAlpha, desc) {
     .text(value);
 
   cell.append("div")
-    .style("font-family","var(--font-mono)").style("font-size","8px").style("font-weight","700")
-    .style("color", color).style("opacity","0.85").style("text-align","center")
+    .style("font-family","var(--font-mono)").style("font-size","10px").style("font-weight","700")
+    .style("color", color).style("opacity","0.9").style("text-align","center")
     .style("letter-spacing","0.02em")
     .text(label);
 }

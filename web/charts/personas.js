@@ -192,7 +192,7 @@ function renderStats(panel, data, total, tooltip, attrsToShow) {
     .text(data.name);
 
   hdr.append("div")
-    .style("font-family", "var(--font-mono)").style("font-size", "9px")
+    .style("font-family", "var(--font-mono)").style("font-size", "10.5px")
     .style("color", "var(--text-muted)").style("white-space", "nowrap").style("flex-shrink", "0")
     .text(`n = ${data.n.toLocaleString()} (${(data.n / total * 100).toFixed(0)}%)`);
 
@@ -219,10 +219,10 @@ function renderStats(panel, data, total, tooltip, attrsToShow) {
     .on("mouseout", () => tooltip.style("opacity", 0))
     .call(el => {
       el.append("span")
-        .style("font-family", "var(--font-mono)").style("font-size", "8px").style("font-weight", "700")
+        .style("font-family", "var(--font-mono)").style("font-size", "10px").style("font-weight", "700")
         .style("color", "var(--text-muted)").text("AT-RISK ");
       el.append("span")
-        .style("font-family", "var(--font-mono)").style("font-size", "10px").style("font-weight", "700")
+        .style("font-family", "var(--font-mono)").style("font-size", "11.5px").style("font-weight", "700")
         .style("color", riskColor).text(`${riskPct}%`);
     });
 
@@ -237,7 +237,7 @@ function renderStats(panel, data, total, tooltip, attrsToShow) {
     .text(data.grade.toFixed(1));
 
   gradeRow.append("div")
-    .style("font-family", "var(--font-mono)").style("font-size", "9px")
+    .style("font-family", "var(--font-mono)").style("font-size", "10.5px").style("font-weight", "600")
     .style("color", "var(--text-muted)").style("letter-spacing", "0.05em")
     .text("AVG FINAL GRADE / 20");
 
@@ -254,12 +254,12 @@ function renderStats(panel, data, total, tooltip, attrsToShow) {
       .style("display", "flex").style("align-items", "baseline").style("gap", "0");
 
     labelLine.append("span")
-      .style("font-family", "var(--font-mono)").style("font-size", "9px").style("font-weight", "500")
+      .style("font-family", "var(--font-mono)").style("font-size", "10.5px").style("font-weight", "500")
       .style("color", "var(--text-muted)")
       .text(attr.label + ": ");
 
     labelLine.append("span")
-      .style("font-family", "var(--font-mono)").style("font-size", "9px").style("font-weight", "700")
+      .style("font-family", "var(--font-mono)").style("font-size", "10.5px").style("font-weight", "700")
       .style("color", color)
       .text(`${data[attr.key].toFixed(1)}${attr.unit}`);
 

@@ -78,8 +78,8 @@ export function drawProgression(data, groupBy = "sex") {
       .attr("stroke-width",1).attr("opacity",0.4);
     svg.append("text")
       .attr("x", 4).attr("y", yScale(10) - 3)
-      .style("font-family","var(--font-mono)").style("font-size","8px")
-      .style("fill","var(--accent-red)").style("opacity","0.6")
+      .style("font-family","var(--font-mono)").style("font-size","10px").style("font-weight","700")
+      .style("fill","var(--accent-red)").style("opacity","0.85")
       .text("PASS ≥10");
   }
 
@@ -174,7 +174,7 @@ export function drawProgression(data, groupBy = "sex") {
 
   svg.append("text").attr("transform","rotate(-90)")
     .attr("x",-H/2).attr("y",-28).attr("text-anchor","middle")
-    .style("font-family","var(--font-mono)").style("font-size","9px").style("font-weight","600")
+    .style("font-family","var(--font-mono)").style("font-size","11px").style("font-weight","700")
     .style("fill","var(--text-muted)").text("AVERAGE GRADE");
 
   // Overall trend annotation
@@ -182,9 +182,9 @@ export function drawProgression(data, groupBy = "sex") {
   const g3mean = d3.mean(data, d => d.grade_final) || 0;
   const diff   = g3mean - g1mean;
   svg.append("text")
-    .attr("x", W - 4).attr("y", 10)
+    .attr("x", W - 4).attr("y", 11)
     .attr("text-anchor","end")
-    .style("font-family","var(--font-mono)").style("font-size","9px")
+    .style("font-family","var(--font-mono)").style("font-size","11px").style("font-weight","700")
     .style("fill", diff >= 0 ? "var(--accent-green)" : "var(--accent-red)")
     .text(`G1→G3: ${diff>=0?"+":""}${diff.toFixed(2)}`);
 }

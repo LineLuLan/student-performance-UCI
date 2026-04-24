@@ -62,20 +62,7 @@ export function drawScatter(data, xField = "grade_mid1") {
     .attr("x1",0).attr("x2",W)
     .attr("y1",d => yScale(d)).attr("y2",d => yScale(d));
 
-  // Pass threshold line at y=10
-  svg.append("line")
-    .attr("x1",0).attr("x2",W)
-    .attr("y1",yScale(10)).attr("y2",yScale(10))
-    .attr("stroke","var(--accent-red)").attr("stroke-dasharray","5,4")
-    .attr("stroke-width",1).attr("opacity",0.5);
-  svg.append("text")
-    .attr("x",W-2).attr("y",yScale(10)-4)
-    .attr("text-anchor","end")
-    .style("font-family","var(--font-mono)").style("font-size","9px")
-    .style("fill","var(--accent-red)").style("opacity","0.7")
-    .text("PASS THRESHOLD");
-
-  // Regression line only (annotation moves to top strip)
+  // Regression line (drawn below dots so it doesn't mask them)
   const reg = linearRegression(data, xField);
   if (reg) {
     const x1 = xScale.domain()[0], x2 = xScale.domain()[1];
@@ -86,7 +73,8 @@ export function drawScatter(data, xField = "grade_mid1") {
   }
 
   // Scatter dots
-  const jitter = d3.randomNormal(0, 0.35);
+  // Seeded jitter: stable across re-renders so identical filter state produces identical positions
+  const jitter = d3.randomNormal.source(d3.randomLcg(0.42))(0, 0.35);
   const tooltip = d3.select("#tooltip");
 
   svg.append("g").attr("class","dots")
@@ -124,6 +112,22 @@ export function drawScatter(data, xField = "grade_mid1") {
       tooltip.style("opacity", 0);
     });
 
+  // Pass threshold line at y=10 — drawn AFTER dots so it stays visible over dense clouds
+  svg.append("line")
+    .attr("class","threshold-line")
+    .attr("x1",0).attr("x2",W)
+    .attr("y1",yScale(10)).attr("y2",yScale(10))
+    .attr("stroke","var(--accent-red)").attr("stroke-dasharray","6,4")
+    .attr("stroke-width",1.5).attr("opacity",0.9)
+    .style("pointer-events","none");
+  svg.append("text")
+    .attr("x",W-4).attr("y",yScale(10)-5)
+    .attr("text-anchor","end")
+    .style("font-family","var(--font-mono)").style("font-size","11px").style("font-weight","700")
+    .style("fill","var(--accent-red)").style("opacity","0.95")
+    .style("pointer-events","none")
+    .text("PASS THRESHOLD");
+
   // Axes
   const xLabel = FIELD_LABELS[xField] || xField;
   svg.append("g").attr("class","axis").attr("transform",`translate(0,${H})`).call(
@@ -134,11 +138,11 @@ export function drawScatter(data, xField = "grade_mid1") {
   );
   svg.append("text").attr("x", W/2).attr("y", H + 34)
     .attr("text-anchor","middle")
-    .style("font-family","var(--font-mono)").style("font-size","10px").style("font-weight","600")
+    .style("font-family","var(--font-mono)").style("font-size","11px").style("font-weight","700")
     .style("fill","var(--text-muted)").text(xLabel.toUpperCase());
   svg.append("text").attr("transform","rotate(-90)")
     .attr("x",-H/2).attr("y",-34).attr("text-anchor","middle")
-    .style("font-family","var(--font-mono)").style("font-size","10px").style("font-weight","600")
+    .style("font-family","var(--font-mono)").style("font-size","11px").style("font-weight","700")
     .style("fill","var(--text-muted)").text("FINAL GRADE (G3)");
 
   // ── Header stat: r / R² ─────────────────────────────────────────

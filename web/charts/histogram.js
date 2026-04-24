@@ -100,9 +100,9 @@ export function drawHistogram(data, gradeField = "grade_final") {
     .attr("y1",0).attr("y2",H)
     .attr("stroke","var(--text-secondary)").attr("stroke-width",1.5).attr("opacity",0.6);
   svg.append("text")
-    .attr("x",xScale(10)+3).attr("y",12)
-    .style("font-family","var(--font-mono)").style("font-size","9px").style("font-weight","600")
-    .style("fill","var(--text-secondary)").style("opacity","0.7")
+    .attr("x",xScale(10)+3).attr("y",13)
+    .style("font-family","var(--font-mono)").style("font-size","11px").style("font-weight","700")
+    .style("fill","var(--text-secondary)").style("opacity","0.9")
     .text("PASS (≥10)");
 
   // G3=0 annotation (only for grade_final)
@@ -111,7 +111,7 @@ export function drawHistogram(data, gradeField = "grade_final") {
     if (zeroCount > 0) {
       svg.append("text")
         .attr("x",xScale(0)+2).attr("y",yScale(zeroCount)-6)
-        .style("font-family","var(--font-mono)").style("font-size","9px")
+        .style("font-family","var(--font-mono)").style("font-size","11px").style("font-weight","700")
         .style("fill","var(--accent-yellow)")
         .text(`${zeroCount} withdrew`);
     }
@@ -123,7 +123,7 @@ export function drawHistogram(data, gradeField = "grade_final") {
   svg.append("text")
     .attr("x",4).attr("y",14)
     .attr("text-anchor","start")
-    .style("font-family","var(--font-mono)").style("font-size","9px")
+    .style("font-family","var(--font-mono)").style("font-size","11px").style("font-weight","600")
     .style("fill","var(--text-muted)")
     .text(`avg ${mu.toFixed(1)}  ·  med ${med.toFixed(0)}`);
 
@@ -136,7 +136,7 @@ export function drawHistogram(data, gradeField = "grade_final") {
   );
   svg.append("text").attr("x",W/2).attr("y",H+32)
     .attr("text-anchor","middle")
-    .style("font-family","var(--font-mono)").style("font-size","9px").style("font-weight","600")
+    .style("font-family","var(--font-mono)").style("font-size","11px").style("font-weight","700")
     .style("fill","var(--text-muted)").text(`${GRADE_LABELS[gradeField].toUpperCase()} SCORE`);
 }
 

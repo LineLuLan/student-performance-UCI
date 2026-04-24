@@ -98,7 +98,7 @@ export function drawImportance(data, activeField = "grade_mid1") {
     .attr("x", d => xScale(d.r) + (d.r>=0 ? 9 : -9))
     .attr("y", yScale.bandwidth()/2 + 3.5)
     .attr("text-anchor", d => d.r>=0 ? "start" : "end")
-    .style("font-family","var(--font-body)").style("font-size","9.5px").style("font-weight","600")
+    .style("font-family","var(--font-body)").style("font-size","11px").style("font-weight","700")
     .style("fill", d => d.r>=0 ? "var(--accent-green)" : "var(--accent-red)")
     .text(d => d.r.toFixed(3));
 
@@ -106,7 +106,7 @@ export function drawImportance(data, activeField = "grade_mid1") {
   groups.append("text")
     .attr("x",-8).attr("y", yScale.bandwidth()/2 + 4)
     .attr("text-anchor","end")
-    .style("font-family","var(--font-body)").style("font-size","10.5px").style("font-weight","500")
+    .style("font-family","var(--font-body)").style("font-size","11.5px").style("font-weight","500")
     .style("fill", d => d.key===activeField ? "var(--text-primary)" : "var(--text-secondary)")
     .style("font-weight", d => d.key===activeField ? "700" : "500")
     .text(d => d.label);
