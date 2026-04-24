@@ -75,16 +75,12 @@ export function drawHistogram(data, gradeField = "grade_final") {
       tooltip.style("opacity",0);
     });
 
-  // KDE overlay
+  // KDE overlay — normalize so peak matches 85% of histogram peak bin height
   const bandwidth = 1.2;
   const kdePoints = d3.range(0, 20.2, 0.2).map(x => ({ x, y: kernelDensity(vals, x, bandwidth) }));
-  const kdeMax = d3.max(kdePoints, d=>d.y);
-  const kdeYScale = d3.scaleLinear().domain([0, kdeMax]).range([H, yMax*1.12*0.05]);
-  // Normalize KDE to fit histogram scale
-  const kdePeakBin = d3.max(bins, d=>d.length);
-  const kdeScale   = kdeMax > 0 ? kdePeakBin / kdeMax * 0.85 : 1;
-
-  const kdeYScaleN = d3.scaleLinear().domain([0, kdeMax]).range([H, yScale(kdePeakBin*0.85)]);
+  const kdeMax = d3.max(kdePoints, d => d.y) || 0;
+  const kdePeakBin = d3.max(bins, d => d.length) || 1;
+  const kdeYScaleN = d3.scaleLinear().domain([0, kdeMax]).range([H, yScale(kdePeakBin * 0.85)]);
 
   const kdeLineGen = d3.line().x(d=>xScale(d.x)).y(d=>kdeYScaleN(d.y)).curve(d3.curveBasis);
   svg.append("path")

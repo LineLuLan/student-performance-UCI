@@ -30,7 +30,12 @@
   --radius:    12px;
   --radius-sm: 6px;
   --shadow:    0 1px 8px rgba(0,0,0,0.07);
-  --shadow-lg: 0 4px 20px rgba(0,0,0,0.11);
+  --shadow-lg: 0 6px 22px rgba(0,0,0,0.13);
+
+  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--accent-blue) 32%, transparent);
+
+  --ease:       cubic-bezier(0.2, 0, 0, 1);
+  --ease-out:   cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 [data-theme="dark"] {
@@ -39,6 +44,9 @@
   --surface-2:    #1e2436;
   --border:       rgba(255,255,255,0.06);
   --border-hover: rgba(255,255,255,0.15);
+  --shadow:       0 1px 10px rgba(0,0,0,0.35);
+  --shadow-lg:    0 10px 32px rgba(0,0,0,0.55);
+  --focus-ring:   0 0 0 3px color-mix(in srgb, var(--accent-blue) 40%, transparent);
 
   --text-primary:   #f0f2f8;
   --text-secondary: #94a3b8;
@@ -68,7 +76,30 @@ body {
   font-size: 13px;
   display: flex;
   flex-direction: column;
-  transition: background 0.25s, color 0.25s;
+  transition: background 0.25s var(--ease), color 0.25s var(--ease);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Keyboard focus — accessible ring on every interactive element */
+button:focus-visible,
+.chip:focus-visible,
+.chart-select:focus-visible,
+select:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-sm);
+}
+
+/* Honor the user's motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 #app {
@@ -146,7 +177,7 @@ body {
   color: var(--text-muted);
   border-radius: 4px;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition: background 0.2s var(--ease), color 0.2s var(--ease), box-shadow 0.2s var(--ease);
   white-space: nowrap;
 }
 .subj-btn.active {
@@ -171,7 +202,7 @@ body {
   color: var(--text-muted);
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: border-color 0.2s var(--ease), color 0.2s var(--ease), background 0.2s var(--ease);
   white-space: nowrap;
 }
 .view-btn.active {
@@ -193,9 +224,10 @@ body {
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted);
-  transition: all 0.15s;
+  transition: border-color 0.2s var(--ease), color 0.2s var(--ease), background 0.2s var(--ease);
   flex-shrink: 0;
 }
+.icon-btn:hover { background: var(--surface-2); }
 .icon-btn:hover { border-color: var(--border-hover); color: var(--text-secondary); }
 .icon-btn svg { width: 15px; height: 15px; }
 [data-theme="light"] .icon-sun  { display: none; }
@@ -221,7 +253,11 @@ body {
   justify-content: center;
   padding: 10px 20px;
   flex: 1;
+  position: relative;
+  transition: background 0.2s var(--ease);
 }
+.kpi-item:hover { background: color-mix(in srgb, var(--text-muted) 5%, transparent); }
+.kpi-item--accent:hover { background: color-mix(in srgb, var(--accent-red) 9%, transparent); }
 .kpi-item--accent { background: color-mix(in srgb, var(--accent-red) 5%, transparent); }
 .kpi-label {
   font-family: var(--font-mono);
@@ -240,6 +276,7 @@ body {
   line-height: 1.1;
   margin-top: 2px;
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 .kpi-value--sm { font-size: 14px; font-family: var(--font-body); font-weight: 600; }
 .kpi-unit { font-size: 14px; color: var(--text-muted); }
@@ -284,10 +321,12 @@ body {
   border-radius: 20px;
   border: 1.5px solid transparent;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: background 0.2s var(--ease), color 0.2s var(--ease), border-color 0.2s var(--ease), transform 0.2s var(--ease-out);
   white-space: nowrap;
   user-select: none;
 }
+.chip:hover { transform: translateY(-1px); }
+.chip:active { transform: translateY(0); }
 .chip.inactive {
   background: var(--surface-2);
   color: var(--text-muted);
@@ -467,8 +506,9 @@ main {
   color: var(--text-muted);
   border-radius: 4px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: background 0.2s var(--ease), color 0.2s var(--ease), box-shadow 0.2s var(--ease);
 }
+.tgl-btn:hover:not(.active) { color: var(--text-secondary); }
 .tgl-btn.active {
   background: var(--surface);
   color: var(--text-primary);
@@ -480,7 +520,7 @@ main {
   position: fixed;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.12s;
+  transition: opacity 0.16s var(--ease-out);
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -489,6 +529,7 @@ main {
   z-index: 9999;
   max-width: 230px;
   min-width: 160px;
+  font-variant-numeric: tabular-nums;
 }
 .tt-header {
   font-family: var(--font-body);
@@ -522,7 +563,7 @@ main {
 
 /* ── SVG chart helpers ───────────────────────────────────────────── */
 .axis path, .axis line { stroke: var(--border); }
-.axis text { fill: var(--text-muted); font-family: var(--font-mono); font-size: 10.5px; }
+.axis text { fill: var(--text-muted); font-family: var(--font-mono); font-size: 10.5px; font-variant-numeric: tabular-nums; }
 .grid-line { stroke: var(--border); stroke-dasharray: 3,4; stroke-width: 0.8; }
 
 /* Scatter dots */
@@ -570,5 +611,12 @@ main {
 ::-webkit-scrollbar-track { background: transparent; }
 
 /* ── Transitions ─────────────────────────────────────────────────── */
-.card { transition: box-shadow 0.15s; }
-.card:hover { box-shadow: var(--shadow-lg); }
+.card {
+  transition: box-shadow 0.25s var(--ease-out), transform 0.25s var(--ease-out), border-color 0.2s var(--ease);
+  will-change: transform;
+}
+.card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-1px);
+  border-color: var(--border-hover);
+}
