@@ -387,11 +387,18 @@ main {
   flex-shrink: 0;
   padding-top: 2px;
 }
+.header-legend {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
 .card-header-sub {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 5px;
+  margin-top: 4px;
 }
 #scatter-stat {
   font-family: var(--font-mono);

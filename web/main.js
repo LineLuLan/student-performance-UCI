@@ -198,7 +198,8 @@ function switchView(key) {
 function toggleChip(val) {
   const s = String(val);
   if (activeChips.has(s)) {
-    if (activeChips.size > 1) activeChips.delete(s);
+    if (activeChips.size === 1) return; // last chip — nothing changes
+    activeChips.delete(s);
   } else {
     activeChips.add(s);
   }

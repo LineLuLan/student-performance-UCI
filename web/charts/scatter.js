@@ -1,4 +1,5 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+import { positionTooltip } from "./utils.js";
 
 const FIELD_LABELS = {
   grade_mid1:       "Midterm 1 (G1)",
@@ -116,7 +117,7 @@ export function drawScatter(data, xField = "grade_mid1") {
       `);
     })
     .on("mousemove", event => {
-      tooltip.style("left", (event.clientX + 14) + "px").style("top", (event.clientY - 10) + "px");
+      positionTooltip(tooltip, event);
     })
     .on("mouseout", function() {
       d3.select(this).attr("r", 2.5).attr("opacity", 0.45);

@@ -1,4 +1,5 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+import { positionTooltip } from "./utils.js";
 
 const GRADE_LABELS = {
   grade_mid1:  "G1 (Period 1)",
@@ -67,7 +68,7 @@ export function drawHistogram(data, gradeField = "grade_final") {
       `);
     })
     .on("mousemove", event => {
-      tooltip.style("left",(event.clientX+14)+"px").style("top",(event.clientY-10)+"px");
+      positionTooltip(tooltip, event);
     })
     .on("mouseout", function() {
       d3.select(this).attr("opacity",0.7);

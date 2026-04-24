@@ -1,4 +1,5 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+import { positionTooltip } from "./utils.js";
 
 const GROUP_CONFIG = {
   sex:      { values: ["f","m"],      labels: ["Female","Male"],      colors: ["var(--accent-purple)","var(--accent-blue)"] },
@@ -44,14 +45,15 @@ export function drawProgression(data, groupBy = "sex") {
     return { val, gi, color: cfg.colors[gi], stats };
   }).filter(Boolean);
 
-  // Tight Y-domain: span the actual std-band range + 1 grade margin, clamped [0,20]
-  let yLo = Infinity, yHi = -Infinity;
+  // Y-domain: based on MEAN lines (not std bands) + fixed 1.5-grade buffer
+  // This zooms the axis to where the lines actually are, making small differences visible
+  let muLo = Infinity, muHi = -Infinity;
   groupStats.forEach(({ stats }) => stats.forEach(s => {
-    yLo = Math.min(yLo, s.lo);
-    yHi = Math.max(yHi, s.hi);
+    muLo = Math.min(muLo, s.mu);
+    muHi = Math.max(muHi, s.mu);
   }));
-  const yMin = isFinite(yLo) ? Math.max(0,  Math.floor(yLo) - 1) : 0;
-  const yMax = isFinite(yHi) ? Math.min(20, Math.ceil(yHi)  + 1) : 20;
+  const yMin = isFinite(muLo) ? Math.max(0,  Math.floor(muLo - 1.5)) : 0;
+  const yMax = isFinite(muHi) ? Math.min(20, Math.ceil(muHi  + 1.5)) : 20;
 
   const xScale = d3.scalePoint().domain(PERIODS.map(p=>p.key)).range([0, W]).padding(0.4);
   const yScale = d3.scaleLinear().domain([yMin, yMax]).range([H, 0]);
@@ -95,7 +97,7 @@ export function drawProgression(data, groupBy = "sex") {
   // ── Group mean lines & std bands ─────────────────────────────
   const tooltip = d3.select("#tooltip");
 
-  groupStats.forEach(({ val, gi, color, stats }) => {
+  groupStats.forEach(({ val, gi, color, stats }, gIdx) => {
     // Std dev band — higher opacity for readability
     const areaGen = d3.area()
       .x(d => xScale(d.p))
@@ -123,9 +125,7 @@ export function drawProgression(data, groupBy = "sex") {
         .attr("r", 6).attr("fill", color).attr("stroke","var(--surface)").attr("stroke-width",2.5)
         .on("mouseover", function(event) {
           const trend = pi > 0 ? (s.mu - stats[pi-1].mu).toFixed(2) : null;
-          tooltip.style("opacity",1)
-            .style("left",(event.clientX+14)+"px").style("top",(event.clientY-10)+"px")
-            .html(`
+          tooltip.style("opacity",1).html(`
               <div class="tt-header" style="color:${color}">${cfg.labels[gi]} · ${PERIODS[pi].label}</div>
               <div class="tt-grid">
                 <span class="tt-label">Mean grade</span><span class="tt-val">${s.mu.toFixed(2)}/20</span>
@@ -134,21 +134,30 @@ export function drawProgression(data, groupBy = "sex") {
                 ${trend!==null?`<span class="tt-label">Change</span><span class="tt-val" style="color:${+trend>=0?"var(--accent-green)":"var(--accent-red)"}">${+trend>=0?"+":""}${trend}</span>`:""}
               </div>
             `);
+          positionTooltip(tooltip, event);
         })
-        .on("mousemove", event => tooltip.style("left",(event.clientX+14)+"px").style("top",(event.clientY-10)+"px"))
+        .on("mousemove", event => positionTooltip(tooltip, event))
         .on("mouseout", () => tooltip.style("opacity",0));
     });
 
-    // End label in right margin
+    // End label in right margin — staggered if too close to a previous group's label
     const lastS = stats[2];
+    const rawLy = yScale(lastS.mu);
+    // Find the nearest already-rendered label y and push down if overlapping
+    const usedLy = groupStats.slice(0, gIdx).map(g => yScale(g.stats[2].mu));
+    let ly = rawLy + 4;
+    usedLy.forEach(prev => {
+      if (Math.abs(ly - (prev + 4)) < 13) ly = prev + 4 + 13;
+    });
     svg.append("text")
-      .attr("x", xScale(lastS.p) + 10).attr("y", yScale(lastS.mu) + 4)
+      .attr("x", xScale(lastS.p) + 10).attr("y", ly)
       .style("font-family","var(--font-body)").style("font-size","10px").style("font-weight","600")
       .style("fill", color)
       .text(cfg.labels[gi].split(" ")[0]);
+    // Connector from mean line to label
     svg.append("line")
       .attr("x1", xScale(lastS.p) + 6).attr("x2", xScale(lastS.p) + 9)
-      .attr("y1", yScale(lastS.mu)).attr("y2", yScale(lastS.mu))
+      .attr("y1", rawLy).attr("y2", rawLy)
       .attr("stroke", color).attr("stroke-width", 1.5).attr("opacity", 0.6);
   });
 

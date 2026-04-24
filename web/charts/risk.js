@@ -1,4 +1,5 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+import { positionTooltip } from "./utils.js";
 
 // Random Forest Classifier — trained on n=1044, test set n=209
 // Features: grade_mid1, grade_mid2, absences, failures, studytime, mother_edu,
@@ -133,9 +134,9 @@ export function drawRisk() {
           </div>
           <div style="margin-top:5px;font-size:10px;color:var(--text-muted)">${metricDesc[m.label]}</div>
         `);
-        tooltip.style("left",(event.clientX+14)+"px").style("top",(event.clientY-10)+"px");
+        positionTooltip(tooltip, event);
       })
-      .on("mousemove", event => tooltip.style("left",(event.clientX+14)+"px").style("top",(event.clientY-10)+"px"))
+      .on("mousemove", event => positionTooltip(tooltip, event))
       .on("mouseout", () => tooltip.style("opacity",0));
 
     const labelRow = row.append("div")
@@ -183,9 +184,9 @@ function cmCell(parent, value, label, color, bgAlpha, desc) {
       </div>
       <div style="margin-top:5px;font-size:10px;color:var(--text-muted)">${desc}</div>
     `);
-    tooltip.style("left",(event.clientX+14)+"px").style("top",(event.clientY-10)+"px");
+    positionTooltip(tooltip, event);
   })
-  .on("mousemove", event => tooltip.style("left",(event.clientX+14)+"px").style("top",(event.clientY-10)+"px"))
+  .on("mousemove", event => positionTooltip(tooltip, event))
   .on("mouseout", () => tooltip.style("opacity",0));
 
   cell.append("div")

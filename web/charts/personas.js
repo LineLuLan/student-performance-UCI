@@ -1,4 +1,5 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+import { positionTooltip } from "./utils.js";
 
 // K-Means (k=3) on [studytime, absences, goout, alcohol_weekend] — n=1044
 // health / freetime are estimated per-cluster means (not clustering variables)
@@ -211,10 +212,10 @@ function renderStats(panel, data, total, tooltip, attrsToShow) {
         </div>
         <div style="margin-top:5px;font-size:10px;color:var(--text-muted)">${data.insight}</div>
       `);
-      tooltip.style("left", (event.clientX + 14) + "px").style("top", (event.clientY - 10) + "px");
+      positionTooltip(tooltip, event);
     })
     .on("mousemove", event =>
-      tooltip.style("left", (event.clientX + 14) + "px").style("top", (event.clientY - 10) + "px"))
+      positionTooltip(tooltip, event))
     .on("mouseout", () => tooltip.style("opacity", 0))
     .call(el => {
       el.append("span")

@@ -1,4 +1,5 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+import { positionTooltip } from "./utils.js";
 
 // Real Pearson r values from Python analysis (combined Math + Portuguese, n=1044)
 const FIELDS = [
@@ -27,7 +28,7 @@ export function drawImportance(data, activeField = "grade_mid1") {
   const { width, height } = container.node().getBoundingClientRect();
   if (width < 40 || height < 40) return;
 
-  const margin = { top: 8, right: 80, bottom: 10, left: 124 };
+  const margin = { top: 8, right: 45, bottom: 10, left: 124 };
   const W = width  - margin.left - margin.right;
   const H = height - margin.top  - margin.bottom;
 
@@ -85,7 +86,7 @@ export function drawImportance(data, activeField = "grade_mid1") {
       `);
     })
     .on("mousemove", event => {
-      tooltip.style("left",(event.clientX+14)+"px").style("top",(event.clientY-10)+"px");
+      positionTooltip(tooltip, event);
     })
     .on("mouseout", function(event, d) {
       d3.select(this).attr("r", d.key===activeField ? 7 : 5.5);
@@ -110,20 +111,19 @@ export function drawImportance(data, activeField = "grade_mid1") {
     .style("font-weight", d => d.key===activeField ? "700" : "500")
     .text(d => d.label);
 
-  // Legend — right margin, top-aligned, fully outside chart area
-  const lgG = svg.append("g").attr("transform", `translate(${W + 4}, ${8})`);
-  lgG.append("rect")
-    .attr("x", 0).attr("y", -2).attr("width", 76).attr("height", 34)
-    .attr("fill", "var(--surface)").attr("opacity", 0.9).attr("rx", 4)
-    .attr("stroke", "var(--border)").attr("stroke-width", 0.5);
-  lgG.append("circle").attr("cx", 6).attr("cy", 9).attr("r", 4)
-    .attr("fill", "var(--accent-green)");
-  lgG.append("text").attr("x", 14).attr("y", 13)
-    .style("font-family", "var(--font-body)").style("font-size", "9px").style("font-weight", "600")
-    .style("fill", "var(--accent-green)").text("Boost Grade");
-  lgG.append("circle").attr("cx", 6).attr("cy", 23).attr("r", 4)
-    .attr("fill", "var(--accent-red)");
-  lgG.append("text").attr("x", 14).attr("y", 27)
-    .style("font-family", "var(--font-body)").style("font-size", "9px").style("font-weight", "600")
-    .style("fill", "var(--accent-red)").text("Lower Grade");
+  // Legend — rendered in card-header via DOM
+  const lgEl = document.getElementById("importance-legend");
+  if (lgEl) {
+    lgEl.innerHTML = "";
+    [["var(--accent-green)", "Boost Grade"], ["var(--accent-red)", "Lower Grade"]].forEach(([color, label]) => {
+      const item = document.createElement("span");
+      item.className = "scatter-legend-item";
+      const dot = document.createElement("span");
+      dot.className = "scatter-legend-dot";
+      dot.style.backgroundColor = color;
+      item.appendChild(dot);
+      item.appendChild(document.createTextNode(label));
+      lgEl.appendChild(item);
+    });
+  }
 }

@@ -105,11 +105,12 @@
         <div class="card" id="card-importance">
           <div class="card-header">
             <div class="card-header-top">
-              <div>
-                <div class="card-tag">Risk Factors</div>
-                <h2 class="card-title">Key Drivers of Final Grade</h2>
-              </div>
-              <div class="card-badge" style="color:var(--accent-blue);background:color-mix(in srgb,var(--accent-blue) 10%,transparent)">Pearson r · Real Data</div>
+              <div class="card-tag">Risk Factors</div>
+              <div class="card-badge" style="color:var(--accent-blue);background:color-mix(in srgb,var(--accent-blue) 10%,transparent);">Pearson r · Real Data</div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:2px;">
+              <h2 class="card-title">Key Drivers of Final Grade</h2>
+              <span id="importance-legend" class="header-legend" style="margin-left:12px;"></span>
             </div>
           </div>
           <div class="card-body" id="container-importance"></div>
@@ -133,15 +134,15 @@
         <div class="card" id="card-bar">
           <div class="card-header">
             <div class="card-header-top">
-              <div>
-                <div class="card-tag">Random Forest Classifier</div>
-                <h2 class="card-title">Dropout Risk Predictor</h2>
-              </div>
+              <div class="card-tag">Random Forest Classifier</div>
               <div class="card-badge" style="color:var(--accent-green);background:color-mix(in srgb,var(--accent-green) 10%,transparent)">ML · 91.4% Accuracy</div>
             </div>
-            <div class="card-badge-amber">
-              <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><circle cx="5" cy="5" r="4.5" fill="none" stroke="currentColor" stroke-width="1.2"/><line x1="5" y1="2.5" x2="5" y2="5.5" stroke="currentColor" stroke-width="1.2"/><circle cx="5" cy="7" r="0.7"/></svg>
-              Static ML Model Snapshot
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:2px;">
+              <h2 class="card-title">Dropout Risk Predictor</h2>
+              <div class="card-badge-amber">
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><circle cx="5" cy="5" r="4.5" fill="none" stroke="currentColor" stroke-width="1.2"/><line x1="5" y1="2.5" x2="5" y2="5.5" stroke="currentColor" stroke-width="1.2"/><circle cx="5" cy="7" r="0.7"/></svg>
+                Static ML Model Snapshot
+              </div>
             </div>
           </div>
           <div class="card-body" id="container-risk"></div>
