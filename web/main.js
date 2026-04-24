@@ -127,13 +127,24 @@ function buildChipBar() {
   const bar  = document.getElementById("chip-bar");
   bar.innerHTML = "";
   view.values.forEach((val, i) => {
+    const active = activeChips.has(String(val));
     const chip = document.createElement("div");
-    chip.className = "chip" + (activeChips.has(String(val)) ? "" : " inactive");
+    chip.className = "chip" + (active ? "" : " inactive");
     chip.textContent = view.chipLabels[i];
-    chip.style.background    = activeChips.has(String(val)) ? colorMix(view.colors[i], 0.15) : "";
-    chip.style.color         = activeChips.has(String(val)) ? view.colors[i] : "";
-    chip.style.borderColor   = activeChips.has(String(val)) ? colorMix(view.colors[i], 0.4) : "";
+    chip.style.background    = active ? colorMix(view.colors[i], 0.15) : "";
+    chip.style.color         = active ? view.colors[i] : "";
+    chip.style.borderColor   = active ? colorMix(view.colors[i], 0.4) : "";
+    chip.setAttribute("role", "button");
+    chip.setAttribute("tabindex", "0");
+    chip.setAttribute("aria-pressed", active ? "true" : "false");
+    chip.setAttribute("aria-label", `${active ? "Hide" : "Show"} ${view.chipLabels[i]}`);
     chip.addEventListener("click", () => toggleChip(val));
+    chip.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        toggleChip(val);
+      }
+    });
     bar.appendChild(chip);
   });
 }
@@ -149,9 +160,13 @@ document.getElementById("subject-toggle").addEventListener("click", e => {
 });
 
 // ── Theme toggle ─────────────────────────────────────────────────
-document.getElementById("theme-toggle").addEventListener("click", () => {
+const themeBtn = document.getElementById("theme-toggle");
+themeBtn.setAttribute("aria-pressed", document.documentElement.dataset.theme === "dark" ? "true" : "false");
+themeBtn.addEventListener("click", () => {
   const html = document.documentElement;
-  html.setAttribute("data-theme", html.dataset.theme === "dark" ? "light" : "dark");
+  const next = html.dataset.theme === "dark" ? "light" : "dark";
+  html.setAttribute("data-theme", next);
+  themeBtn.setAttribute("aria-pressed", next === "dark" ? "true" : "false");
   drawAll(getFilteredData());
 });
 

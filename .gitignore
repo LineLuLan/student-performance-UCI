@@ -5,7 +5,8 @@ CLAUDE.md
 # Ignore all Markdown files
 *.md
 
-# But keep README.md
+# But keep README.md and USECASE.md
 !README.md
 !README.MD
+!USECASE.md
 

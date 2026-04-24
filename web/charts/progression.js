@@ -85,7 +85,7 @@ export function drawProgression(data, groupBy = "sex") {
 
   // ── Spaghetti background — fewer lines, more subtle ─────────
   const sample = data.length > 120 ? d3.shuffle([...data]).slice(0,120) : data;
-  const lineGen     = d3.line().x(d=>xScale(d.p)).y(d=>yScale(d.v)).defined(d=>!isNaN(d.v) && d.v >= yMin);
+  const lineGen     = d3.line().x(d=>xScale(d.p)).y(d=>yScale(d.v)).defined(d=>!isNaN(d.v));
   const meanLineGen = d3.line().x(d=>xScale(d.p)).y(d=>yScale(d.mu));
 
   svg.append("g").attr("clip-path","url(#prog-clip)")
