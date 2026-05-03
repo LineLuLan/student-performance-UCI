@@ -65,7 +65,7 @@ window.__viewValues__ = VIEW_CONFIG[currentView].values;
 window.__viewLabels__ = VIEW_CONFIG[currentView].chipLabels;
 
 // ── CSV load & coerce ────────────────────────────────────────────
-d3.csv("/data/clean_students.csv", d => ({
+d3.csv("data/clean_students.csv", d => ({
   school:         (d.school||"").toLowerCase(),
   sex:            (d.sex||"").toLowerCase(),
   age:            +d.age,
