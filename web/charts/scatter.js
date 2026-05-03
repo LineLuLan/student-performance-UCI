@@ -69,7 +69,7 @@ export function drawScatter(data, xField = "grade_mid1") {
     svg.append("line").attr("class","reg-line")
       .attr("x1",xScale(x1)).attr("y1",yScale(reg.slope*x1 + reg.intercept))
       .attr("x2",xScale(x2)).attr("y2",yScale(reg.slope*x2 + reg.intercept))
-      .attr("stroke","var(--text-muted)");
+      .attr("stroke","var(--text-secondary)");
   }
 
   // Scatter dots

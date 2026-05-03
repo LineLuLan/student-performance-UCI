@@ -187,5 +187,20 @@ export function drawProgression(data, groupBy = "sex") {
     .style("font-family","var(--font-mono)").style("font-size","11px").style("font-weight","700")
     .style("fill", diff >= 0 ? "var(--accent-green)" : "var(--accent-red)")
     .text(`G1→G3: ${diff>=0?"+":""}${diff.toFixed(2)}`);
+
+  // No-significant-gap annotation: when ≥2 groups overlap closely at G3,
+  // tell the viewer this is real data (flat lines aren't a bug).
+  if (groupStats.length >= 2) {
+    const g3means = groupStats.map(g => g.stats[2].mu);
+    const gap = Math.max(...g3means) - Math.min(...g3means);
+    if (gap < 0.3) {
+      svg.append("text")
+        .attr("x", W - 4).attr("y", 25)
+        .attr("text-anchor","end")
+        .style("font-family","var(--font-body)").style("font-size","10px").style("font-style","italic")
+        .style("fill","var(--text-muted)")
+        .text("≈ no significant gap");
+    }
+  }
 }
 

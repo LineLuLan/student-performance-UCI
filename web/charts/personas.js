@@ -136,7 +136,7 @@ export function drawPersonas() {
       .style("border-radius", "50%")
       .style("background", cl.color)
       .style("display", "inline-flex").style("align-items", "center").style("justify-content", "center")
-      .style("font-size", "9.5px").style("color", "white").style("font-weight", "700")
+      .style("font-size", "9.5px").style("color", "var(--bg)").style("font-weight", "700")
       .text(cl.initial);
 
     tab.append("span")

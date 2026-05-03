@@ -6,6 +6,12 @@ import { drawRisk }        from "./charts/risk.js";
 import { drawProgression } from "./charts/progression.js";
 import { drawHistogram }   from "./charts/histogram.js";
 
+// ── Theme initialization (persists across reloads, respects OS preference) ──
+const savedTheme = localStorage.getItem("theme");
+const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+const initialTheme = savedTheme || (prefersDark ? "dark" : "light");
+document.documentElement.setAttribute("data-theme", initialTheme);
+
 // ── View configuration ───────────────────────────────────────────
 const VIEW_CONFIG = {
   sex: {
@@ -166,6 +172,7 @@ themeBtn.addEventListener("click", () => {
   const html = document.documentElement;
   const next = html.dataset.theme === "dark" ? "light" : "dark";
   html.setAttribute("data-theme", next);
+  localStorage.setItem("theme", next);
   themeBtn.setAttribute("aria-pressed", next === "dark" ? "true" : "false");
   drawAll(getFilteredData());
 });
