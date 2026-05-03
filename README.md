@@ -17,7 +17,7 @@
 
 ## Live Demo
 
-> **Live at:** *deployed on Vercel — see [Deployment](#8-deployment) section to launch your own*
+> **Live at:** *deployed on Vercel — see [https://student-uci-dashboard.vercel.app/](https://student-uci-dashboard.vercel.app/) section to launch your own*
 >
 > **Local preview:** `python -m http.server 8000 --directory web` → open <http://localhost:8000>
 
