@@ -8,8 +8,8 @@
 | Field | Value |
 |---|---|
 | **Project title** | Student Risk Early Warning: An Interactive Analytical Dashboard on the UCI Student Performance Dataset |
-| **Course** | `[COURSE CODE — COURSE NAME]` |
-| **Instructor** | `[INSTRUCTOR NAME]` |
+| **Course** | Data Science and Data Visualization |
+| **Instructor** | M.Sc. T. T. Tung |
 | **Institution** | International University — Vietnam National University Ho Chi Minh City (IU — VNU-HCM) |
 | **Submission date** | 16 May 2026 |
 | **GitHub repository** | https://github.com/LineLuLan/student-performance-UCI |
@@ -21,8 +21,8 @@
 | # | Full name | Student ID (MSSV) | Email | Role |
 |---|---|---|---|---|
 | 1 | **Tran Nam Anh** *(Leader)* | **ITDSIU23030** | tnanh.gdsciu@gmail.com | Data & ML Engineering |
-| 2 | **Nguyen Duc Hai** | **ITDSIU23006** | `[EMAIL]` | Visualization & Frontend |
-| 3 | **Dang Minh Phat** | **ITDSIU23017** | `[EMAIL]` | Documentation, Report & Video |
+| 2 | **Nguyen Duc Hai** | **ITDSIU23006** | ngduchaidev0301@gmail.com | Visualization & Frontend |
+| 3 | **Dang Minh Phat** | **ITDSIU23017** | dangminhphat753@gmail.com | Documentation, Report & Video |
 
 > If your team has only **two** members, merge the third row's responsibilities into one of the others — see "Two-member variant" at the end of this file.
 
