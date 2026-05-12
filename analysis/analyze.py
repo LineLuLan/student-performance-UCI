@@ -36,22 +36,55 @@ sys.stdout.flush()
 
 # ── K-Means 3 clusters ───────────────────────────────────────────
 cluster_cols = ['studytime','absences','goout','alcohol_weekend']
-X_c = df[cluster_cols].copy().fillna(0)
-scaler = StandardScaler(); X_scaled = scaler.fit_transform(X_c)
-km = KMeans(n_clusters=3, random_state=42, n_init=10); df['cluster'] = km.fit_predict(X_scaled)
-cstats = []
-for cid in sorted(df['cluster'].unique()):
-    g = df[df['cluster']==cid]
-    cstats.append({
-        'id':int(cid),'count':int(len(g)),
-        'grade_mean':round(float(g['grade_final'].mean()),2),
-        'studytime_mean':round(float(g['studytime'].mean()),2),
-        'absences_mean':round(float(g['absences'].mean()),2),
-        'goout_mean':round(float(g['goout'].mean()),2),
-        'alcohol_mean':round(float(g['alcohol_weekend'].mean()),2),
-        'at_risk_rate':round(float(g['at_risk'].mean()),3)
-    })
-print('===CLUSTERS==='); print(json.dumps(cstats)); print('===END===')
+# Semantic key assigned by at_risk-rate ascending so clusters keep the same
+# identity (Focused / Average / Social Risk) across the combined fit and the
+# subject-stratified fits below.
+SEMANTIC_KEYS = ['focused', 'average', 'social_risk']
+
+def train_kmeans(sub_df):
+    """K-Means k=3 on lifestyle features; returns 3 cluster dicts sorted by
+    at_risk ascending and tagged with a semantic key so the personas card can
+    match colour and name to the same behavioural pattern regardless of which
+    subject filter is active."""
+    s = sub_df.reset_index(drop=True)
+    Xc = s[cluster_cols].fillna(0)
+    sc = StandardScaler(); Xn = sc.fit_transform(Xc)
+    k  = KMeans(n_clusters=3, random_state=42, n_init=10)
+    labels = k.fit_predict(Xn)
+
+    raw = []
+    for cid in sorted(set(labels)):
+        g = s[labels == cid]
+        raw.append({
+            'count':      int(len(g)),
+            'grade':      round(float(g['grade_final'].mean()), 2),
+            'studytime':  round(float(g['studytime'].mean()), 2),
+            'absences':   round(float(g['absences'].mean()), 2),
+            'goout':      round(float(g['goout'].mean()), 2),
+            'alcohol':    round(float(g['alcohol_weekend'].mean()), 2),
+            'health':     round(float(g['health'].mean()), 2),
+            'freetime':   round(float(g['freetime'].mean()), 2),
+            'at_risk':    round(float(g['at_risk'].mean()), 3),
+        })
+    raw.sort(key=lambda r: r['at_risk'])
+    for i, c in enumerate(raw):
+        c['semantic'] = SEMANTIC_KEYS[i]
+    return raw, labels, k
+
+# Combined fit — used both for ===CLUSTERS=== output and for assigning the
+# `cluster` column on the exported CSV (so any downstream consumer that joins
+# on cluster id still works against the combined model).
+combined_clusters, combined_labels, _ = train_kmeans(df)
+df['cluster'] = combined_labels
+print('===CLUSTERS==='); print(json.dumps(combined_clusters)); print('===END===')
+sys.stdout.flush()
+
+math_clusters, _, _ = train_kmeans(df[df['subject'] == 'math'])
+print('===CLUSTERS_MATH==='); print(json.dumps(math_clusters)); print('===END===')
+sys.stdout.flush()
+
+por_clusters, _, _ = train_kmeans(df[df['subject'] == 'portuguese'])
+print('===CLUSTERS_POR==='); print(json.dumps(por_clusters)); print('===END===')
 sys.stdout.flush()
 
 # ── Random Forest classifier ──────────────────────────────────────

@@ -262,7 +262,7 @@ function drawAll(data) {
   drawImportance(allData, scatterXField, importanceMode);
   drawProgression(data, document.getElementById("progression-select").value);
   drawHistogram(data, histGrade);
-  drawPersonas();
+  drawPersonas(currentSubject);
   drawRisk(currentSubject);
 }
 

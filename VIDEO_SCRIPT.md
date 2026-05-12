@@ -91,8 +91,8 @@ Each component follows the same micro-structure: **question → chart → encodi
 
 | | |
 |---|---|
-| **On-screen** | Move cursor to *Student Behavioural Profiles* card. Click the *Focused Achievers* tab. Pause two seconds reading the attribute bars. Click *Average Learners*. Pause. Click *Social Risk Group* — linger on the at-risk badge. |
-| **Narration** | *"The third card answers: are there distinct types of students? We run K-Means with k equals three on four standardised lifestyle features — study time, absences, going-out frequency, and weekend alcohol — deliberately excluding the grades themselves so the clustering is not circular. The elbow method supports three clusters. We name them in plain language. Focused Achievers — two hundred and seven students, twelve point six percent at-risk. Average Learners — five hundred and twenty-four students, twenty-one point four percent. And the Social Risk Group — three hundred and thirteen students, twenty-nine point four percent at-risk."* |
+| **On-screen** | Move cursor to *Student Behavioural Profiles* card. Click the *Focused Achievers* tab. Pause two seconds reading the attribute bars. Click *Average Learners*. Pause. Click *Social Risk Group* — linger on the at-risk badge reading "29.4%". |
+| **Narration** | *"The third card answers: are there distinct types of students? We run K-Means with k equals three on four standardised lifestyle features — study time, absences, going-out frequency, and weekend alcohol — deliberately excluding the grades themselves so the clustering is not circular. The elbow method supports three clusters. We name them in plain language. Focused Achievers — two hundred and seven students, twelve point six percent at-risk. Average Learners — five hundred and twenty-four students, twenty-one point four percent. And the Social Risk Group — three hundred and thirteen students, twenty-nine point four percent at-risk. Like the Risk Predictor, this card is subject-aware: when the user toggles the Subject filter, all three K-Means clusters re-fit on the corresponding sub-cohort. We'll see in Part 2 that the same Social Risk archetype carries twenty-percent-different operational urgency depending on whether the teacher is teaching Math or Portuguese."* |
 
 ## Scene 7 · Dropout Risk Predictor (3:35 – 4:30)
 
@@ -179,21 +179,21 @@ One continuous live demo. No cuts between cards — the cursor moves naturally b
 | **On-screen** | Move cursor to *Dropout Risk Predictor*. The header now reads *"PORTUGUESE ONLY · n=130 test"* — the card has already re-stratified to the Portuguese model because the Subject toggle is on Portuguese. Hover the *MISSED* cell (FN = 5). Hover the *Recall* metric bar (75.0%). |
 | **Narration** | *"Step four. Look at the header — the card is now showing the Portuguese-only Random Forest, automatically, because the subject toggle is on Portuguese. On the Portuguese held-out test set of one hundred and thirty students, the model catches fifteen of twenty at-risk cases. Five are missed. Recall is seventy-five percent. That is the honest number for this sub-cohort — and it is meaningfully lower than the combined model's eighty-two point six percent, because the Portuguese cohort has a smaller at-risk minority and fewer positive examples to learn from."* |
 
-## Scene 17b · Live model stratification (11:20 – 11:50)
+## Scene 17b · Live model + persona stratification (11:20 – 12:10)
 
 | | |
 |---|---|
-| **On-screen** | Click *Subject = Math*. The Risk Card header re-renders to *"MATH ONLY · n=79 test"*; recall jumps to **88.5%**; MISSED drops to 3. Pause two seconds. Click *Subject = Both*. The card re-renders to the combined model — recall back to 82.6%, MISSED back to 8. |
-| **Narration** | *"Watch this. Toggle to Math. The card retrains in front of you — well, more precisely, the dashboard picks the pre-trained Math-only model. Recall jumps to eighty-eight point five percent. Three students missed instead of five. Math is an easier prediction problem because the at-risk class is denser. Toggle back to Both. Recall returns to eighty-two point six. The dashboard is not a static report — the model that's evaluated changes with the question the user is asking. For Part Two we leave it on Portuguese, because that was the coordinator's original question."* — then click back to *Subject = Portuguese* before continuing. |
+| **On-screen** | Click *Subject = Math*. The Risk Card header re-renders to *"MATH ONLY · n=79 test"*; recall jumps to **88.5%**; MISSED drops to 3. **The Behavioural Profiles card re-fits at the same time — with the Social Risk tab still active, the at-risk badge rises to 42.1%.** Pause two seconds. Click *Subject = Portuguese*. Risk Card → 75.0% recall. **Behavioural Profiles Social Risk badge drops to 21.3%.** |
+| **Narration** | *"Watch this. Toggle to Math. Two cards retrain together — the Risk Predictor switches to the Math-only Random Forest, recall jumps to eighty-eight point five percent. And the Behavioural Profiles card re-fits K-Means on the Math cohort: the Social Risk Group's at-risk badge climbs from twenty-nine to forty-two percent. Toggle to Portuguese. Risk recall drops to seventy-five percent; the Social Risk badge falls to twenty-one percent. Same archetype — high absences, high alcohol — but the operational urgency is half what it was in Math. Two cards moving together turn subject-conditional risk into direct manipulation. For Part Two we leave it on Portuguese."* |
 
-## Scene 18 · Cross-check (11:50 – 12:30)
+## Scene 18 · Cross-check (12:10 – 12:40)
 
 | | |
 |---|---|
 | **On-screen** | Move cursor to *Progression*. Open the group-by dropdown, select *Gender*. Look at the female mean line from G1 to G3. Hover the G3 mean dot. Then move to *Distribution* — toggle to G3 — point the cursor at the G3 = 0 spike. |
 | **Narration** | *"Cross-check across two more views. The progression chart, regrouped by gender for the Portuguese cohort, shows the female mean trajectory across the three periods. The standard-deviation bands tell us how dispersed the cohort is around the mean. And in the distribution panel, the G3-equals-zero spike of withdrawals is visible at the left edge. The pattern is consistent — the bimodality is not an artefact, it is a population of withdrawals embedded in the cohort."* |
 
-## Scene 19 · Theme & responsiveness (12:30 – 13:00)
+## Scene 19 · Theme & responsiveness (12:40 – 13:05)
 
 | | |
 |---|---|
@@ -202,23 +202,23 @@ One continuous live demo. No cuts between cards — the cursor moves naturally b
 
 ---
 
-# Closing (13:00 – 14:00)
+# Closing (13:05 – 14:05)
 
-## Scene 20 · Findings recap (13:00 – 13:30)
+## Scene 20 · Findings recap (13:05 – 13:35)
 
 | | |
 |---|---|
 | **On-screen** | Cut to a static slide with four large lines: *r = 0.91 (G2 → G3)* / *Combined recall 82.6% — 8 missed; Math recall 88.5% — 3 missed; Portuguese recall 75.0% — 5 missed* / *5-fold CV recall 79.1% ± 8.1 pp* / *53 withdrawals (5.1% of cohort)*. |
 | **Narration** | *"Four numbers to remember. R equals zero point nine one — the second midterm is an almost-deterministic predictor of the final. Recall across the three stratified models — eighty-two point six percent combined, eighty-eight point five on Math alone, seventy-five on Portuguese alone — showing that the combined model is essentially a weighted average. Five-fold cross-validation recall seventy-nine point one percent plus-or-minus eight — the result is stable. And fifty-three withdrawals — a failure mode the summary statistics would have hidden."* |
 
-## Scene 21 · Honest limitations (13:30 – 13:50)
+## Scene 21 · Honest limitations (13:35 – 13:55)
 
 | | |
 |---|---|
-| **On-screen** | Static slide, three bullet lines: *ML numbers are hardcoded — re-run analyze.py to refresh all three RF blocks.* / *Pearson misses non-linear relationships — Spearman or mutual information would extend this.* / *Read-only dashboard — no per-student inference UI yet.* |
-| **Narration** | *"Three limitations we report openly. The machine-learning numbers are hardcoded into the front end; refreshing them requires re-running the Python pipeline. The Pearson coefficient assumes a linear relationship and would understate any non-linear or threshold effects. And the dashboard is read-only — there is no live per-student prediction panel; that is on the roadmap."* |
+| **On-screen** | Static slide, two bullet lines: *ML numbers are hardcoded — re-run analyze.py to refresh all subject-stratified blocks.* / *Read-only dashboard — no per-student inference UI yet.* |
+| **Narration** | *"Two limitations we report openly. The machine-learning numbers are hardcoded into the front end; refreshing them requires re-running the Python pipeline. And the dashboard is read-only — there is no live per-student prediction panel; that is on the roadmap. Pearson linearity, single hold-out, and combined-cohort modelling — all three are addressed in the body of the work."* |
 
-## Scene 22 · End card (13:50 – 14:00)
+## Scene 22 · End card (13:55 – 14:05)
 
 | | |
 |---|---|
@@ -234,11 +234,11 @@ One continuous live demo. No cuts between cards — the cursor moves naturally b
 | Title + dataset slides | 0:55 |
 | Part 1 (six components + global controls, incl. Scene 4 RF Importance toggle demo) | 5:55 |
 | Transition | 0:20 |
-| Part 2 (use case walkthrough, incl. live stratification scene 17b) | 6:10 |
+| Part 2 (use case walkthrough, incl. live model + persona stratification scene 17b) | 6:30 |
 | Closing (4-number recap + limitations + end card) | 1:00 |
-| **Total** | **14:20** |
+| **Total** | **14:40** |
 
-Sits inside the 10–15 min window with ~40 seconds of headroom for natural pauses and any sentence you re-take. Two "wow moments" in the script — the Pearson↔RF Importance toggle in Scene 4 (showing `absences` jumping from rank 15 to rank 4) and the live Subject-toggle model switching in Scene 17b (showing recall jumping from 82.6% combined to 88.5% Math-only).
+Sits inside the 10–15 min window with ~20 seconds of headroom for natural pauses. **Two "wow moments" in the script:** the Pearson↔RF Importance toggle in Scene 4 (showing `absences` jumping from rank 15 to rank 4) and the live Subject-toggle stratification in Scene 17b (showing two cards moving together — Risk recall 82.6% → 88.5% Math-only, and Behavioural Profiles Social Risk badge 29.4% → 42.1% Math-only).
 
 ---
 
