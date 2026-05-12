@@ -470,6 +470,33 @@ Two observations follow.
 
 **The combined model is essentially a weighted average.** With n = 1,044 combined and a 22.0% at-risk rate, the combined model's recall (82.6%) sits squarely between the two stratified models (88.5% Math, 75.0% Portuguese) — closer to the Portuguese number than to the Math number, because Portuguese contributes more rows. This makes the combined model the appropriate default when the user has not chosen a subject, but argues for the stratified models when a teacher is acting in a single-subject context. The dashboard surfaces this choice through the *Subject* toggle.
 
+### 7.3.2 Fairness audit: subgroup-conditional metrics by gender
+
+A model whose aggregate metrics look acceptable can still produce disparate operational outcomes across demographic subgroups. We therefore report subgroup-conditional metrics for the combined Random Forest, broken down by the `sex` attribute (the most plainly demographic axis available in the dataset). The decomposition uses the same held-out test rows (n = 209) as Table 6.
+
+**Table 7 — Gender-conditional performance of the combined Random Forest on the held-out test set**
+
+| Subgroup | n (test) | At-risk (test) | Accuracy | Precision | **Recall** | F1 | Caught | Missed | Selection rate |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| **Female** | 115 | 23 | 94.8% | 84.0% | **91.3%** | 87.5% | 21 of 23 | **2** | 21.7% |
+| **Male** | 94 | 23 | 87.2% | 73.9% | **73.9%** | 73.9% | 17 of 23 | **6** | 24.5% |
+
+**Disparity ratios** (computed as smaller-over-larger; the four-fifths rule of US employment law treats ratios below 0.80 as evidence of disparate impact):
+
+| Disparity measure | Ratio | Interpretation |
+|---|---:|---|
+| **Recall ratio** (equal-opportunity) | **0.81** | Just above the 0.80 four-fifths threshold |
+| Precision ratio (predictive parity) | 0.88 | Within acceptable range |
+| Selection-rate ratio (demographic parity) | 0.89 | Within acceptable range |
+
+Two observations follow.
+
+**The model is materially less effective at catching at-risk male students.** Female recall is 91.3% (21 of 23 caught, 2 missed); male recall is 73.9% (17 of 23 caught, 6 missed). The recall gap is 17 percentage points, and on the same number of at-risk students per subgroup (23 each in the test set) the model misses three times as many males as females. The recall disparity ratio of 0.81 is *just* above the conventional four-fifths threshold for evidence of disparate impact, which we report transparently rather than rounding away.
+
+**The selection-rate disparity is small.** The Random Forest flags 21.7% of female students as at-risk and 24.5% of male students — a ratio of 0.89. This indicates the model is not under-flagging males in aggregate; rather, when it does flag, it flags more accurately for females (higher precision and higher recall). The disparity is therefore in *errors not made* (false negatives), not in *flags issued* (selection rate). For an early-warning use case where the cost of a false negative is high, this is the more operationally significant axis.
+
+**Mitigation directions.** Three options follow from this finding. (i) *Threshold adjustment.* The Random Forest can be re-thresholded per subgroup so that subgroup recalls are equalised — at the cost of accepting a higher false-positive rate in the lower-recall subgroup (here, males). (ii) *Subgroup-conditional class weights.* Refit the Random Forest with `sample_weight` that up-weights male at-risk students proportional to the recall gap. (iii) *Reweighing the training distribution* using methods such as Kamiran and Calders (2012). All three are appropriate next steps; we surface the disparity here rather than silently reporting only the combined metric.
+
 ### 7.4 Diagnostic insight: bimodal G3 and the withdrawal cohort
 
 The G3 histogram exposes a clearly bimodal distribution: a primary mode centred near eleven out of twenty, plus a secondary spike at G3 = 0. This secondary mode corresponds to **53 students (5.1% of cohort)** whose final grade is recorded as zero — interpretable as students who withdrew or did not sit the final exam.
@@ -505,7 +532,7 @@ We acknowledge several threats to the external validity of these results.
 
 **Class-imbalance handling.** We use `class_weight = "balanced"` rather than data-level resampling techniques such as SMOTE [9]. The choice is principled (preserves the original distribution; no synthetic samples introduced), but a comparison with SMOTE-based resampling would strengthen the result.
 
-**Fairness.** The dataset contains sex, family status, and other demographic variables that could be used to assess fairness across demographic subgroups. We do not report subgroup-conditional precision and recall in the current work. A more complete deployment would include a fairness audit and, if necessary, reweighting or post-hoc thresholding.
+**Fairness.** Subgroup-conditional precision and recall by `sex` are reported in §7.3.2 (Table 7). The audit surfaces a meaningful recall gap (Female 91.3% vs Male 73.9%) — the model misses three times as many at-risk male students as female. The disparity ratio of 0.81 is just above the conventional four-fifths threshold for evidence of disparate impact, which we report transparently. Subgroup-conditional metrics for other demographic attributes (family status, school, address) and post-hoc threshold-adjustment mitigations are appropriate next steps for a production deployment.
 
 **Withdrawal versus failure.** As noted in §7.4, the binary `at_risk` target collapses two operationally distinct outcomes (withdrawal at G3 = 0 and failure at 0 < G3 < 10). A three-class formulation may be more appropriate.
 
