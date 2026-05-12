@@ -2,7 +2,9 @@ import pandas as pd, numpy as np, json, sys
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split, cross_validate, StratifiedKFold
 from sklearn.metrics import confusion_matrix, precision_recall_fscore_support
 
 mat = pd.read_csv('../data/raw/student-mat.csv', sep=';'); mat['subject']='math'
@@ -70,6 +72,47 @@ rf_data = {
     'tn':int(cm[0][0]),'fp':int(cm[0][1]),'fn':int(cm[1][0]),'tp':int(cm[1][1])
 }
 print('===RF==='); print(json.dumps(rf_data)); print('===END===')
+sys.stdout.flush()
+
+# ── 5-fold stratified cross-validation on Random Forest ──────────
+cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+cv_scoring = ['accuracy', 'precision', 'recall', 'f1']
+cv_clf = RandomForestClassifier(n_estimators=200, class_weight='balanced',
+                                random_state=42, n_jobs=-1)
+cv_scores = cross_validate(cv_clf, X_rf, y_rf, cv=cv, scoring=cv_scoring, n_jobs=-1)
+cv_summary = {m: {'mean': round(float(cv_scores[f'test_{m}'].mean()), 4),
+                  'std':  round(float(cv_scores[f'test_{m}'].std()),  4)}
+              for m in cv_scoring}
+print('===CV==='); print(json.dumps(cv_summary)); print('===END===')
+sys.stdout.flush()
+
+# ── Baseline models on the same stratified 80/20 split ───────────
+# LogReg needs scaled inputs; DT does not
+scaler_b = StandardScaler()
+X_train_s = scaler_b.fit_transform(X_train)
+X_test_s  = scaler_b.transform(X_test)
+
+baselines = {}
+for name, model, X_tr, X_te in [
+    ('logreg', LogisticRegression(class_weight='balanced', max_iter=1000,
+                                  random_state=42), X_train_s, X_test_s),
+    ('dtree',  DecisionTreeClassifier(class_weight='balanced',
+                                      random_state=42),                X_train,   X_test),
+]:
+    model.fit(X_tr, y_train)
+    y_pred_b = model.predict(X_te)
+    cm_b = confusion_matrix(y_test, y_pred_b).tolist()
+    p_b, r_b, f_b, _ = precision_recall_fscore_support(y_test, y_pred_b,
+                                                       pos_label=1, average='binary')
+    baselines[name] = {
+        'accuracy': round(float((y_test == y_pred_b).mean()), 4),
+        'precision': round(float(p_b), 4),
+        'recall': round(float(r_b), 4),
+        'f1': round(float(f_b), 4),
+        'tn': int(cm_b[0][0]), 'fp': int(cm_b[0][1]),
+        'fn': int(cm_b[1][0]), 'tp': int(cm_b[1][1]),
+    }
+print('===BASELINES==='); print(json.dumps(baselines)); print('===END===')
 sys.stdout.flush()
 
 # ── Export clean CSV ──────────────────────────────────────────────

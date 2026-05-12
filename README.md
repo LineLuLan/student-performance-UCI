@@ -41,7 +41,9 @@
 | **Cohort** | 1,044 students · 2 schools · 2 subjects (Math + Portuguese) |
 | **Target** | `at_risk = G3 < 10` · 22.0% minority class |
 | **Best predictor** | G2 midterm — Pearson *r* = 0.91, *R²* = 0.83 |
-| **Random Forest** | accuracy 91.4% · precision 79.2% · **recall 82.6%** · F1 80.9% |
+| **Random Forest** | hold-out *n* = 209: accuracy 91.4% · precision 79.2% · **recall 82.6%** · F1 80.9% |
+| **5-fold CV (RF)** | recall 79.1% ± 8.1 pp · F1 82.0% ± 3.9 pp — stable across folds |
+| **Baselines (hold-out)** | LogReg recall 91.3% (F1 77.1%) · Decision Tree recall 76.1% (F1 73.7%) — RF leads on F1 |
 | **K-Means clusters** | Focused Achievers (12.6% at-risk) · Average Learners (21.4%) · Social Risk Group (29.4%) |
 | **Diagnostic finding** | Bimodal G3 — primary mode at 11/20 + 53 students (5.1%) who withdrew (G3 = 0) |
 | **Stack** | D3.js v7 · Vanilla JS (ES modules, no bundler) · Python · scikit-learn |
@@ -86,7 +88,7 @@
 > - **G2 is an almost-deterministic predictor of G3** — *r* = 0.91, *R²* = 0.83. G1 follows at *r* = 0.81. Past `failures` is the strongest negative signal (*r* = −0.38).
 > - **The G3 distribution is bimodal** — a primary Gaussian centred near 11/20 *plus* a secondary spike at G3 = 0 corresponding to **53 students (5.1%) who withdrew** before the final exam. A failure mode invisible to summary statistics alone.
 > - **K-Means (k = 3) recovers academically meaningful clusters** — *Focused Achievers* (n = 207, grade 12.5, at-risk 12.6%), *Average Learners* (n = 524, grade 11.3, at-risk 21.4%), and a *Social Risk Group* (n = 313, grade 10.6, at-risk 29.4%) whose absences and weekend alcohol scores are both ~2× the cohort mean.
-> - **A 200-tree Random Forest reaches recall 82.6%** on a stratified 20% hold-out (*n* = 209): of 46 true at-risk students, 38 are caught and **8 are missed** — the single quantity most relevant to an early-warning use case.
+> - **A 200-tree Random Forest reaches recall 82.6%** on a stratified 20% hold-out (*n* = 209): of 46 true at-risk students, 38 are caught and **8 are missed** — the single quantity most relevant to an early-warning use case. 5-fold stratified cross-validation confirms the result is broadly stable (mean recall 79.1% ± 8.1 pp; mean F1 82.0% ± 3.9 pp). Against baselines on the same split: Logistic Regression catches more at-risk students (recall 91.3%) but raises 21 false alarms (precision 66.7%); a Decision Tree misses 11 (recall 76.1%). The Random Forest's F1 80.9% is the best-balanced of the three.
 
 ---
 
@@ -249,7 +251,7 @@ cd analysis
 python -m pip install pandas numpy scikit-learn scipy statsmodels matplotlib seaborn
 python analyze.py
 ```
-Prints Pearson correlations, cluster statistics, and Random Forest metrics. Writes `clean_students.csv` to both `data/processed/` and `web/data/`.
+Prints Pearson correlations, cluster statistics, Random Forest metrics, a 5-fold stratified cross-validation summary (`===CV===`) on the Random Forest, and hold-out metrics for two baseline classifiers (`===BASELINES===` — `logreg`, `dtree`). Writes `clean_students.csv` to both `data/processed/` and `web/data/`. The figures hardcoded in `web/charts/risk.js` continue to reflect the held-out Random Forest run only.
 
 ### 7.2 Launch the dashboard locally
 ```bash
