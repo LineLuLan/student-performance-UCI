@@ -217,7 +217,11 @@ We train a Random Forest classifier to predict the binary `at_risk` target.
 
 **Hyperparameters.** `RandomForestClassifier` is configured with `n_estimators = 200`, `class_weight = "balanced"`, `random_state = 42`, `n_jobs = -1`. The `class_weight = "balanced"` setting penalises misclassification of the minority at-risk class in inverse proportion to its frequency, which is critical for an early-warning system in which a *missed* student is much more costly than a false alarm.
 
-**Evaluation.** We compute accuracy, precision, recall, F1, and the confusion matrix on the held-out test set. We do not use cross-validation in the deployed pipeline; this is acknowledged as a limitation (§8.2).
+**Evaluation.** We compute accuracy, precision, recall, F1, and the confusion matrix on the held-out test set. To complement the held-out evaluation, we additionally report **5-fold stratified cross-validation** (`StratifiedKFold`, `shuffle=True`, `random_state=42`) over the full cohort, scoring on accuracy, precision, recall, and F1. The CV results in §7.3 are the methodologically primary numbers; the hold-out matrix (Table 6) is retained so the operational cost of each cell (caught, false alarm, **MISSED**, all-clear) can be interpreted directly.
+
+### 4.4.1 Baseline models
+
+For comparison we train two baselines on the same stratified 80/20 split. (i) `LogisticRegression(class_weight="balanced", max_iter=1000, random_state=42)` on standardised features (a `StandardScaler` is fit on the training split and applied to the test split). (ii) `DecisionTreeClassifier(class_weight="balanced", random_state=42)` on the raw features. Both baselines are evaluated with the same recall-led framing as the Random Forest. We report the comparison in §7.3 (Table 5).
 
 ### 4.5 Progression analysis (RQ5)
 
@@ -386,29 +390,60 @@ Table 4 reports the three K-Means clusters with their behavioural attributes and
 
 The Social Risk Group has roughly double the cohort-average absences and roughly double the cohort-average weekend alcohol score. Its at-risk rate is 29.4%, more than double that of the Focused Achievers cluster. These clusters are recovered from lifestyle features alone — the grade variables are deliberately excluded from the clustering input — so the elevated at-risk rate in the Social Risk Group constitutes independent evidence that lifestyle is a meaningful predictor beyond academic history.
 
-### 7.3 Random Forest performance (RQ4)
+### 7.3 Classifier performance (RQ4)
 
-On the held-out test set (n = 209, of which 46 are at-risk), the Random Forest classifier achieves the following metrics:
+We report three classifiers on the held-out test set (n = 209, of which 46 are at-risk), and a 5-fold stratified cross-validation summary on the Random Forest.
 
-**Table 5 — Random Forest test-set performance**
+**Table 5 — Held-out test-set performance for the three classifiers (n = 209)**
 
-| Metric | Value |
-|---|---:|
-| Accuracy | 91.4% |
-| Precision (at-risk) | 79.2% |
-| **Recall (at-risk)** | **82.6%** |
-| F1 (at-risk) | 80.9% |
+| Metric | Logistic Regression | Decision Tree | **Random Forest** |
+|---|---:|---:|---:|
+| Accuracy | 88.0% | 88.0% | **91.4%** |
+| Precision (at-risk) | 66.7% | 71.4% | **79.2%** |
+| Recall (at-risk) | **91.3%** | 76.1% | 82.6% |
+| F1 (at-risk) | 77.1% | 73.7% | **80.9%** |
 
-The confusion matrix (Table 6) decomposes these aggregate metrics into the four operational outcomes.
+The three models present a clear *recall–precision trade-off*. Logistic Regression catches the most at-risk students (recall 91.3%, missing only 4 of 46), but at the cost of 21 false alarms (precision 66.7%). The Decision Tree behaves in the opposite direction, missing 11 of 46 at-risk students. The Random Forest sits between the two, achieving the highest F1 (80.9%) — the best-balanced choice given an early-warning use case that values both catching at-risk students *and* not over-flagging the cohort. We adopt the Random Forest as the deployed model in the dashboard, while reporting Logistic Regression openly as a viable alternative if a school's intervention budget makes false alarms cheap.
 
-**Table 6 — Confusion matrix on the held-out test set**
+**Table 5b — 5-fold stratified cross-validation on the Random Forest**
+
+| Metric | Mean | Std |
+|---|---:|---:|
+| Accuracy | 92.4% | ± 1.2 pp |
+| Precision | 85.7% | ± 2.4 pp |
+| **Recall** | **79.1%** | ± 8.1 pp |
+| F1 | 82.0% | ± 3.9 pp |
+
+The CV mean recall (79.1%) is within roughly 3.5 percentage points of the hold-out recall (82.6%), indicating that the hold-out is mildly optimistic for the at-risk class but not pathologically so. The relatively wide recall standard deviation (± 8.1 pp) is the most informative caveat: recall on this dataset depends meaningfully on *which* 209 students happen to be in the test fold — driven by the small at-risk minority (≈46 per fold) and the heterogeneity inside it. Accuracy, precision, and F1 are all stable to within a few percentage points across folds.
+
+The held-out confusion matrix (Table 6) decomposes the Random Forest's aggregate metrics into the four operational outcomes.
+
+**Table 6 — Confusion matrix for the Random Forest on the held-out test set**
 
 | | Predicted Pass | Predicted At-Risk |
 |---|---:|---:|
 | **Actually Pass** (n = 163) | TN = 153 (94%) | FP = 10 (6%) |
 | **Actually At-Risk** (n = 46) | **FN = 8 (17%) — MISSED** | TP = 38 (83%) |
 
-The headline result is **recall = 82.6%** — the model catches 38 of 46 at-risk students on the test set. Eight at-risk students are missed (the false-negative cell, rendered in red in the dashboard). Ten passing students are flagged falsely (the false-positive cell). In an early-warning context, a false negative is operationally more costly than a false positive — a missed student receives no intervention; a falsely flagged student receives a check-in conversation that costs only the teacher's time. The dashboard surfaces this asymmetry deliberately.
+The headline operational result is **recall = 82.6%** — the deployed Random Forest catches 38 of 46 at-risk students on the test set. Eight at-risk students are missed (the false-negative cell, rendered in red in the dashboard). Ten passing students are flagged falsely (the false-positive cell). In an early-warning context, a false negative is operationally more costly than a false positive — a missed student receives no intervention; a falsely flagged student receives a check-in conversation that costs only the teacher's time. The dashboard surfaces this asymmetry deliberately.
+
+### 7.3.1 Subject-stratified Random Forest models
+
+To probe whether the cohort-wide model masks subject-specific dynamics, we additionally train two stratified Random Forests — one on Mathematics only (*n* = 395) and one on Portuguese only (*n* = 649) — using the same hyperparameters, the same feature set, and the same stratified 80/20 split protocol (`random_state = 42`). Table 5c reports the held-out metrics for all three models side by side. The dashboard's *Subject* toggle now switches between these three models in addition to filtering the displayed cohort.
+
+**Table 5c — Subject-stratified Random Forest performance on held-out test sets**
+
+| Model | n total | n test | At-risk in test | Accuracy | Precision | **Recall** | F1 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Combined (deployed default) | 1,044 | 209 | 46 | 91.4% | 79.2% | **82.6%** | 80.9% |
+| **Math only** | **395** | **79** | **26** | 89.9% | 82.1% | **88.5%** | 85.2% |
+| **Portuguese only** | **649** | **130** | **20** | 90.0% | 65.2% | **75.0%** | 69.8% |
+
+Two observations follow.
+
+**Math is easier to predict than Portuguese.** The Math-only model catches twenty-three of twenty-six at-risk students (recall 88.5%, F1 85.2%) and meaningfully outperforms the combined model on every metric except accuracy. The Portuguese-only model catches fifteen of twenty (recall 75.0%) at the cost of a much lower precision (65.2%) and F1 (69.8%). Two structural reasons drive this gap. First, the Mathematics cohort has a higher base rate of at-risk students (38.7% of Math students are at-risk versus 12.4% of Portuguese students), so the minority class is less imbalanced and the classifier sees more positive examples per training fold. Second, the Math test set (n = 79) is smaller but the at-risk class is denser (26 of 79 = 32.9% versus 20 of 130 = 15.4%); a small absolute change in catches has a larger relative effect on recall.
+
+**The combined model is essentially a weighted average.** With n = 1,044 combined and a 22.0% at-risk rate, the combined model's recall (82.6%) sits squarely between the two stratified models (88.5% Math, 75.0% Portuguese) — closer to the Portuguese number than to the Math number, because Portuguese contributes more rows. This makes the combined model the appropriate default when the user has not chosen a subject, but argues for the stratified models when a teacher is acting in a single-subject context. The dashboard surfaces this choice through the *Subject* toggle.
 
 ### 7.4 Diagnostic insight: bimodal G3 and the withdrawal cohort
 
@@ -432,13 +467,11 @@ Three observations follow from the empirical results.
 
 ### 8.2 Limitations
 
-We list five concrete limitations of the present system.
+We list three concrete limitations of the present system.
 
-1. **Hardcoded ML numbers.** Pearson correlations, cluster statistics, and Random Forest metrics are baked into JavaScript object literals in `web/charts/*.js`. Re-running `analyze.py` regenerates the cleaned CSV but these numbers must be copied across manually. The trade-off (no build step) is acceptable for this project but would not scale to a production deployment with frequent data updates.
-2. **Single eighty-twenty hold-out.** The reported metrics are based on a single stratified hold-out split rather than k-fold cross-validation or bootstrap resampling. The metrics are therefore point estimates with no associated confidence interval. K-fold cross-validation would strengthen the empirical claim at modest computational cost.
-3. **Cohort-wide rather than subject-stratified model.** The Random Forest is trained on Math and Portuguese students combined. The Subject toggle in the dashboard re-filters the displayed cohort but does not re-train the model. A subject-stratified split would let the dashboard report subject-specific recall.
-4. **Pearson misses non-linearity.** The Pearson coefficient assumes a linear relationship. Variables such as `goout` may exhibit U-shaped or threshold relationships with G3 that the coefficient understates. Spearman rank correlation and mutual information would be reasonable extensions.
-5. **No live single-student inference.** The dashboard is read-only. A natural extension is an input panel that accepts a student's features and runs the classifier client-side via a serialised model (ONNX runtime or a hand-rolled tree-ensemble in JavaScript).
+1. **Hardcoded ML numbers.** Pearson correlations, cluster statistics, and Random Forest metrics (across all three stratifications) are baked into JavaScript object literals in `web/charts/*.js`. Re-running `analyze.py` regenerates the cleaned CSV and recomputes every number, but the figures displayed on the dashboard must be copied across manually. The trade-off (no build step) is acceptable for this project but would not scale to a production deployment with frequent data updates.
+2. **Pearson misses non-linearity.** The Pearson coefficient assumes a linear relationship. Variables such as `goout` may exhibit U-shaped or threshold relationships with G3 that the coefficient understates. Spearman rank correlation and mutual information would be reasonable extensions.
+3. **No live single-student inference.** The dashboard is read-only. A natural extension is an input panel that accepts a student's features and runs the classifier client-side via a serialised model (ONNX runtime or a hand-rolled tree-ensemble in JavaScript).
 
 ### 8.3 Threats to validity
 
