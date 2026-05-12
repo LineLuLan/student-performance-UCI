@@ -44,6 +44,7 @@
 | **Random Forest** | hold-out *n* = 209: accuracy 91.4% · precision 79.2% · **recall 82.6%** · F1 80.9% |
 | **5-fold CV (RF)** | recall 79.1% ± 8.1 pp · F1 82.0% ± 3.9 pp — stable across folds |
 | **Baselines (hold-out)** | LogReg recall 91.3% (F1 77.1%) · Decision Tree recall 76.1% (F1 73.7%) — RF leads on F1 |
+| **Subject-stratified RF** | Math (n=395) recall **88.5%** · Portuguese (n=649) recall **75.0%** — Subject toggle switches models live |
 | **K-Means clusters** | Focused Achievers (12.6% at-risk) · Average Learners (21.4%) · Social Risk Group (29.4%) |
 | **Diagnostic finding** | Bimodal G3 — primary mode at 11/20 + 53 students (5.1%) who withdrew (G3 = 0) |
 | **Stack** | D3.js v7 · Vanilla JS (ES modules, no bundler) · Python · scikit-learn |
@@ -89,6 +90,7 @@
 > - **The G3 distribution is bimodal** — a primary Gaussian centred near 11/20 *plus* a secondary spike at G3 = 0 corresponding to **53 students (5.1%) who withdrew** before the final exam. A failure mode invisible to summary statistics alone.
 > - **K-Means (k = 3) recovers academically meaningful clusters** — *Focused Achievers* (n = 207, grade 12.5, at-risk 12.6%), *Average Learners* (n = 524, grade 11.3, at-risk 21.4%), and a *Social Risk Group* (n = 313, grade 10.6, at-risk 29.4%) whose absences and weekend alcohol scores are both ~2× the cohort mean.
 > - **A 200-tree Random Forest reaches recall 82.6%** on a stratified 20% hold-out (*n* = 209): of 46 true at-risk students, 38 are caught and **8 are missed** — the single quantity most relevant to an early-warning use case. 5-fold stratified cross-validation confirms the result is broadly stable (mean recall 79.1% ± 8.1 pp; mean F1 82.0% ± 3.9 pp). Against baselines on the same split: Logistic Regression catches more at-risk students (recall 91.3%) but raises 21 false alarms (precision 66.7%); a Decision Tree misses 11 (recall 76.1%). The Random Forest's F1 80.9% is the best-balanced of the three.
+> - **Subject-stratified Random Forests** trained on Mathematics-only and Portuguese-only cohorts reveal that the combined model is essentially a weighted average. Math recall climbs to **88.5%** (F1 85.2%) because the at-risk class is denser (38.7% base rate), while Portuguese recall drops to **75.0%** (F1 69.8%) because the at-risk class is more rare (12.4%) and the model has fewer positive examples to learn from. The dashboard's *Subject* toggle now switches between all three models live, surfacing this trade-off to the user.
 
 ---
 
@@ -251,7 +253,7 @@ cd analysis
 python -m pip install pandas numpy scikit-learn scipy statsmodels matplotlib seaborn
 python analyze.py
 ```
-Prints Pearson correlations, cluster statistics, Random Forest metrics, a 5-fold stratified cross-validation summary (`===CV===`) on the Random Forest, and hold-out metrics for two baseline classifiers (`===BASELINES===` — `logreg`, `dtree`). Writes `clean_students.csv` to both `data/processed/` and `web/data/`. The figures hardcoded in `web/charts/risk.js` continue to reflect the held-out Random Forest run only.
+Prints Pearson correlations, cluster statistics, Random Forest metrics for three subject stratifications (`===RF===` combined, `===RF_MATH===`, `===RF_POR===`), a 5-fold stratified cross-validation summary (`===CV===`) on the combined Random Forest, and hold-out metrics for two baseline classifiers (`===BASELINES===` — `logreg`, `dtree`). Writes `clean_students.csv` to both `data/processed/` and `web/data/`. The figures hardcoded in `web/charts/risk.js` reflect all three Random Forest runs; the *Subject* toggle picks which is shown.
 
 ### 7.2 Launch the dashboard locally
 ```bash

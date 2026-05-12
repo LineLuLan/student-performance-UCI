@@ -58,20 +58,45 @@ sys.stdout.flush()
 feature_cols = ['grade_mid1','grade_mid2','absences','failures','studytime',
                 'mother_edu','father_edu','goout','alcohol_weekend','romantic',
                 'internet','schoolsup','activities']
-X_rf = df[feature_cols].fillna(0); y_rf = df['at_risk']
-X_train,X_test,y_train,y_test = train_test_split(
-    X_rf, y_rf, test_size=0.2, random_state=42, stratify=y_rf)
-clf = RandomForestClassifier(n_estimators=200,class_weight='balanced',random_state=42,n_jobs=-1)
-clf.fit(X_train, y_train); y_pred = clf.predict(X_test)
-cm = confusion_matrix(y_test, y_pred).tolist()
-p,r,f,_ = precision_recall_fscore_support(y_test, y_pred, pos_label=1, average='binary')
-acc = float((y_test==y_pred).mean())
-rf_data = {
-    'accuracy':round(acc,4), 'precision':round(float(p),4),
-    'recall':round(float(r),4), 'f1':round(float(f),4),
-    'tn':int(cm[0][0]),'fp':int(cm[0][1]),'fn':int(cm[1][0]),'tp':int(cm[1][1])
-}
+
+def train_rf(sub_df, label):
+    """Fit a Random Forest on sub_df with the same hyperparameters as the
+    combined model. Returns the metric dict and the train/test split tensors
+    so callers can reuse them (e.g. for baseline comparison)."""
+    Xs = sub_df[feature_cols].fillna(0); ys = sub_df['at_risk']
+    Xtr, Xte, ytr, yte = train_test_split(Xs, ys, test_size=0.2,
+                                          random_state=42, stratify=ys)
+    m = RandomForestClassifier(n_estimators=200, class_weight='balanced',
+                               random_state=42, n_jobs=-1)
+    m.fit(Xtr, ytr); yp = m.predict(Xte)
+    cm = confusion_matrix(yte, yp).tolist()
+    p, r, f, _ = precision_recall_fscore_support(yte, yp, pos_label=1, average='binary')
+    acc = float((yte == yp).mean())
+    data = {
+        'subject': label,
+        'n_total': int(len(sub_df)),
+        'n_test': int(len(yte)),
+        'n_at_risk_test': int(int((yte == 1).sum())),
+        'accuracy': round(acc, 4), 'precision': round(float(p), 4),
+        'recall':   round(float(r), 4), 'f1':       round(float(f), 4),
+        'tn': int(cm[0][0]), 'fp': int(cm[0][1]),
+        'fn': int(cm[1][0]), 'tp': int(cm[1][1]),
+    }
+    return data, (Xtr, Xte, ytr, yte)
+
+# Combined model (deployed model — preserves the existing ===RF=== output)
+rf_data, (X_train, X_test, y_train, y_test) = train_rf(df, 'combined')
+X_rf = df[feature_cols].fillna(0); y_rf = df['at_risk']  # retained for CV below
 print('===RF==='); print(json.dumps(rf_data)); print('===END===')
+sys.stdout.flush()
+
+# Subject-stratified models
+rf_math, _ = train_rf(df[df['subject'] == 'math'].reset_index(drop=True), 'math')
+print('===RF_MATH==='); print(json.dumps(rf_math)); print('===END===')
+sys.stdout.flush()
+
+rf_por, _ = train_rf(df[df['subject'] == 'portuguese'].reset_index(drop=True), 'portuguese')
+print('===RF_POR==='); print(json.dumps(rf_por)); print('===END===')
 sys.stdout.flush()
 
 # ── 5-fold stratified cross-validation on Random Forest ──────────

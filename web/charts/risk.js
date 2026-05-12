@@ -1,21 +1,33 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 import { positionTooltip } from "./utils.js";
 
-// Random Forest Classifier — trained on n=1044, test set n=209
+// Random Forest Classifier — three subject-stratified models
 // Features: grade_mid1, grade_mid2, absences, failures, studytime, mother_edu,
 //           father_edu, goout, alcohol_weekend, romantic, internet, schoolsup, activities
 // Target: at_risk (grade_final < 10)
-// Computed from Python analysis (analysis/analyze.py)
-const RF = {
-  accuracy:  0.9139,
-  precision: 0.7917,
-  recall:    0.8261,
-  f1:        0.8085,
-  matrix: { tn: 153, fp: 10, fn: 8, tp: 38 },
-  testN: 209,
+// Each model is trained on its own stratified 80/20 split (random_state=42).
+// Computed from Python analysis (analysis/analyze.py). To refresh, re-run
+// analyze.py and copy the ===RF===, ===RF_MATH===, ===RF_POR=== blocks here.
+const RF_BY_SUBJECT = {
+  all: {
+    accuracy:  0.9139, precision: 0.7917, recall: 0.8261, f1: 0.8085,
+    matrix: { tn: 153, fp: 10, fn: 8, tp: 38 },
+    testN: 209, nTotal: 1044, label: "all subjects",
+  },
+  math: {
+    accuracy:  0.8987, precision: 0.8214, recall: 0.8846, f1: 0.8519,
+    matrix: { tn: 48, fp: 5, fn: 3, tp: 23 },
+    testN: 79, nTotal: 395, label: "Math only",
+  },
+  portuguese: {
+    accuracy:  0.9000, precision: 0.6522, recall: 0.7500, f1: 0.6977,
+    matrix: { tn: 102, fp: 8, fn: 5, tp: 15 },
+    testN: 130, nTotal: 649, label: "Portuguese only",
+  },
 };
 
-export function drawRisk() {
+export function drawRisk(subject = "all") {
+  const RF = RF_BY_SUBJECT[subject] || RF_BY_SUBJECT.all;
   const container = d3.select("#container-risk");
   container.selectAll("*").interrupt().remove();
 
@@ -36,7 +48,8 @@ export function drawRisk() {
   left.append("div")
     .style("font-family","var(--font-mono)").style("font-size","10.5px").style("font-weight","700")
     .style("color","var(--text-muted)").style("text-transform","uppercase")
-    .style("letter-spacing","0.06em").text("CONFUSION MATRIX · n=209 test");
+    .style("letter-spacing","0.06em")
+    .text(`CONFUSION MATRIX · ${RF.label.toUpperCase()} · n=${RF.testN} test`);
 
   left.append("div")
     .style("font-family","var(--font-display)").style("font-size","13px")
@@ -94,7 +107,7 @@ export function drawRisk() {
       .style("font-family","var(--font-body)").style("font-size","11px").style("font-weight","700")
       .style("color","var(--text-muted)").style("white-space","nowrap")
       .text(row.rowLabel);
-    row.cells.forEach(c => cmCell(rowDiv, c.val, c.label, c.color, c.bg, c.desc));
+    row.cells.forEach(c => cmCell(rowDiv, c.val, c.label, c.color, c.bg, c.desc, RF.testN));
   });
 
   // ── Right: Metrics ────────────────────────────────────────────
@@ -166,7 +179,7 @@ export function drawRisk() {
     .html("Top features:<br><b>G2 > G1 > Failures</b>");
 }
 
-function cmCell(parent, value, label, color, bgAlpha, desc) {
+function cmCell(parent, value, label, color, bgAlpha, desc, testN = 209) {
   const cell = parent.append("div")
     .style("display","flex").style("flex-direction","column").style("align-items","center")
     .style("justify-content","center").style("border-radius","8px")
@@ -180,7 +193,7 @@ function cmCell(parent, value, label, color, bgAlpha, desc) {
       <div class="tt-header" style="color:${color}">${label}</div>
       <div class="tt-grid">
         <span class="tt-label">Count</span><span class="tt-val">${value} students</span>
-        <span class="tt-label">Share</span><span class="tt-val">${(value/209*100).toFixed(1)}%</span>
+        <span class="tt-label">Share</span><span class="tt-val">${(value/testN*100).toFixed(1)}%</span>
       </div>
       <div style="margin-top:5px;font-size:10px;color:var(--text-muted)">${desc}</div>
     `);

@@ -252,7 +252,7 @@ function drawAll(data) {
   drawProgression(data, document.getElementById("progression-select").value);
   drawHistogram(data, histGrade);
   drawPersonas();
-  drawRisk();
+  drawRisk(currentSubject);
 }
 
 // ── KPI ──────────────────────────────────────────────────────────

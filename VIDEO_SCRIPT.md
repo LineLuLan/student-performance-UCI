@@ -98,8 +98,8 @@ Each component follows the same micro-structure: **question → chart → encodi
 
 | | |
 |---|---|
-| **On-screen** | Move cursor to *Dropout Risk Predictor*. Pause. Hover each of the four matrix cells in order: caught, false-alarm, missed, all-clear. Then hover the *Recall* metric bar. |
-| **Narration** | *"The fourth card asks: can a model flag at-risk students before the final exam, and what is the cost of being wrong? We train a Random Forest with two hundred trees on a stratified eighty-twenty split, with class-weight balanced to compensate for the twenty-two-percent minority. On a held-out test set of two hundred and nine students, the model catches thirty-eight of forty-six at-risk students. Eight are missed. We render the full confusion matrix because, in an early-warning system, the cost of a missed student is much higher than the cost of a false alarm. That is why MISSED is rendered in red, and why we lead the metrics with recall at eighty-two point six percent — not accuracy."* |
+| **On-screen** | Move cursor to *Dropout Risk Predictor*. Pause. Hover each of the four matrix cells in order: caught, false-alarm, missed, all-clear. Then hover the *Recall* metric bar. The header reads *"ALL SUBJECTS · n=209 test"*. |
+| **Narration** | *"The fourth card asks: can a model flag at-risk students before the final exam, and what is the cost of being wrong? We train a Random Forest with two hundred trees on a stratified eighty-twenty split, with class-weight balanced to compensate for the twenty-two-percent minority. On a held-out test set of two hundred and nine students, the combined model catches thirty-eight of forty-six at-risk students. Eight are missed. We render the full confusion matrix because, in an early-warning system, the cost of a missed student is much higher than the cost of a false alarm. That is why MISSED is rendered in red, and why we lead the metrics with recall at eighty-two point six percent — not accuracy. The card actually switches between three models — combined, Math-only, and Portuguese-only — when the user toggles the subject. We'll see this live in Part 2."* |
 
 ## Scene 8 · Progression (4:30 – 5:15)
 
@@ -172,21 +172,28 @@ One continuous live demo. No cuts between cards — the cursor moves naturally b
 | **On-screen** | Move cursor to *Student Behavioural Profiles*. Click the *Social Risk Group* tab. Pause two seconds. Hover the *absences* attribute bar — tooltip shows the group mean compared to the cohort. Hover *alcohol_weekend*. |
 | **Narration** | *"Step three. Which type of student owns this risk? The Social Risk Group. Their absences are about double the cohort mean. Their weekend alcohol score is three point seven on a five-point scale, where the cohort mean is one point seven. Their at-risk rate is twenty-nine point four percent — almost a third. A teacher who reaches this student needs to know they are part of a behavioural pattern, not a one-off failure."* |
 
-## Scene 17 · Step 4 — What the model says (10:20 – 11:10)
+## Scene 17 · Step 4 — What the model says (10:20 – 11:20)
 
 | | |
 |---|---|
-| **On-screen** | Move cursor to *Dropout Risk Predictor*. Hover the *CAUGHT* cell (TP = 38). Move to *MISSED* (FN = 8). Move to the *Recall* metric bar. |
-| **Narration** | *"Step four. On a held-out test set of two hundred and nine students, the Random Forest caught thirty-eight of forty-six at-risk cases. Eight were missed. Recall is eighty-two point six percent. That is the number we report honestly. We do not lead with the ninety-one-percent accuracy — on a twenty-two-percent minority class, accuracy is almost guaranteed to look good even for a poor model. In an early-warning context, those eight missed students are the actual cost of being wrong, and we render the cell in red precisely so a teacher cannot miss the trade-off."* |
+| **On-screen** | Move cursor to *Dropout Risk Predictor*. The header now reads *"PORTUGUESE ONLY · n=130 test"* — the card has already re-stratified to the Portuguese model because the Subject toggle is on Portuguese. Hover the *MISSED* cell (FN = 5). Hover the *Recall* metric bar (75.0%). |
+| **Narration** | *"Step four. Look at the header — the card is now showing the Portuguese-only Random Forest, automatically, because the subject toggle is on Portuguese. On the Portuguese held-out test set of one hundred and thirty students, the model catches fifteen of twenty at-risk cases. Five are missed. Recall is seventy-five percent. That is the honest number for this sub-cohort — and it is meaningfully lower than the combined model's eighty-two point six percent, because the Portuguese cohort has a smaller at-risk minority and fewer positive examples to learn from."* |
 
-## Scene 18 · Cross-check (11:10 – 12:00)
+## Scene 17b · Live model stratification (11:20 – 11:50)
+
+| | |
+|---|---|
+| **On-screen** | Click *Subject = Math*. The Risk Card header re-renders to *"MATH ONLY · n=79 test"*; recall jumps to **88.5%**; MISSED drops to 3. Pause two seconds. Click *Subject = Both*. The card re-renders to the combined model — recall back to 82.6%, MISSED back to 8. |
+| **Narration** | *"Watch this. Toggle to Math. The card retrains in front of you — well, more precisely, the dashboard picks the pre-trained Math-only model. Recall jumps to eighty-eight point five percent. Three students missed instead of five. Math is an easier prediction problem because the at-risk class is denser. Toggle back to Both. Recall returns to eighty-two point six. The dashboard is not a static report — the model that's evaluated changes with the question the user is asking. For Part Two we leave it on Portuguese, because that was the coordinator's original question."* — then click back to *Subject = Portuguese* before continuing. |
+
+## Scene 18 · Cross-check (11:50 – 12:30)
 
 | | |
 |---|---|
 | **On-screen** | Move cursor to *Progression*. Open the group-by dropdown, select *Gender*. Look at the female mean line from G1 to G3. Hover the G3 mean dot. Then move to *Distribution* — toggle to G3 — point the cursor at the G3 = 0 spike. |
 | **Narration** | *"Cross-check across two more views. The progression chart, regrouped by gender for the Portuguese cohort, shows the female mean trajectory across the three periods. The standard-deviation bands tell us how dispersed the cohort is around the mean. And in the distribution panel, the G3-equals-zero spike of withdrawals is visible at the left edge. The pattern is consistent — the bimodality is not an artefact, it is a population of withdrawals embedded in the cohort."* |
 
-## Scene 19 · Theme & responsiveness (12:00 – 12:30)
+## Scene 19 · Theme & responsiveness (12:30 – 13:00)
 
 | | |
 |---|---|
@@ -195,23 +202,23 @@ One continuous live demo. No cuts between cards — the cursor moves naturally b
 
 ---
 
-# Closing (12:30 – 13:30)
+# Closing (13:00 – 14:00)
 
-## Scene 20 · Findings recap (12:30 – 13:00)
-
-| | |
-|---|---|
-| **On-screen** | Cut to a static slide with three large lines: *r = 0.91 (G2 → G3)* / *Recall 82.6% — 8 students missed* / *53 withdrawals (5.1% of cohort)*. |
-| **Narration** | *"Three numbers to remember. R equals zero point nine one — the second midterm is an almost-deterministic predictor of the final. Recall eighty-two point six percent — the model catches roughly five out of every six at-risk students; eight in the test set are missed. And fifty-three withdrawals — a failure mode the summary statistics would have hidden."* |
-
-## Scene 21 · Honest limitations (13:00 – 13:20)
+## Scene 20 · Findings recap (13:00 – 13:30)
 
 | | |
 |---|---|
-| **On-screen** | Static slide, three bullet lines: *ML numbers are hardcoded; re-run analyze.py to refresh.* / *Single eighty-twenty hold-out — no k-fold cross-validation.* / *Read-only dashboard — no per-student inference UI yet.* |
-| **Narration** | *"Three limitations we report openly. The machine-learning numbers are hardcoded into the front end; refreshing them requires re-running the Python pipeline. The evaluation is on a single eighty-twenty hold-out rather than k-fold cross-validation. And the dashboard is read-only — there is no live per-student prediction panel; that is on the roadmap."* |
+| **On-screen** | Cut to a static slide with four large lines: *r = 0.91 (G2 → G3)* / *Combined recall 82.6% — 8 missed; Math recall 88.5% — 3 missed; Portuguese recall 75.0% — 5 missed* / *5-fold CV recall 79.1% ± 8.1 pp* / *53 withdrawals (5.1% of cohort)*. |
+| **Narration** | *"Four numbers to remember. R equals zero point nine one — the second midterm is an almost-deterministic predictor of the final. Recall across the three stratified models — eighty-two point six percent combined, eighty-eight point five on Math alone, seventy-five on Portuguese alone — showing that the combined model is essentially a weighted average. Five-fold cross-validation recall seventy-nine point one percent plus-or-minus eight — the result is stable. And fifty-three withdrawals — a failure mode the summary statistics would have hidden."* |
 
-## Scene 22 · End card (13:20 – 13:30)
+## Scene 21 · Honest limitations (13:30 – 13:50)
+
+| | |
+|---|---|
+| **On-screen** | Static slide, three bullet lines: *ML numbers are hardcoded — re-run analyze.py to refresh all three RF blocks.* / *Pearson misses non-linear relationships — Spearman or mutual information would extend this.* / *Read-only dashboard — no per-student inference UI yet.* |
+| **Narration** | *"Three limitations we report openly. The machine-learning numbers are hardcoded into the front end; refreshing them requires re-running the Python pipeline. The Pearson coefficient assumes a linear relationship and would understate any non-linear or threshold effects. And the dashboard is read-only — there is no live per-student prediction panel; that is on the roadmap."* |
+
+## Scene 22 · End card (13:50 – 14:00)
 
 | | |
 |---|---|
@@ -227,11 +234,11 @@ One continuous live demo. No cuts between cards — the cursor moves naturally b
 | Title + dataset slides | 0:55 |
 | Part 1 (six components + global controls) | 5:30 |
 | Transition | 0:20 |
-| Part 2 (use case walkthrough) | 5:40 |
-| Closing | 1:00 |
-| **Total** | **13:25** |
+| Part 2 (use case walkthrough, incl. live stratification scene 17b) | 6:10 |
+| Closing (4-number recap + limitations + end card) | 1:00 |
+| **Total** | **13:55** |
 
-Sits inside the 10–15 min window with ~1.5 minutes of headroom for natural pauses and any sentence you re-take.
+Sits inside the 10–15 min window with ~1 minute of headroom for natural pauses and any sentence you re-take.
 
 ---
 

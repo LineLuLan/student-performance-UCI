@@ -427,6 +427,24 @@ The held-out confusion matrix (Table 6) decomposes the Random Forest's aggregate
 
 The headline operational result is **recall = 82.6%** — the deployed Random Forest catches 38 of 46 at-risk students on the test set. Eight at-risk students are missed (the false-negative cell, rendered in red in the dashboard). Ten passing students are flagged falsely (the false-positive cell). In an early-warning context, a false negative is operationally more costly than a false positive — a missed student receives no intervention; a falsely flagged student receives a check-in conversation that costs only the teacher's time. The dashboard surfaces this asymmetry deliberately.
 
+### 7.3.1 Subject-stratified Random Forest models
+
+To probe whether the cohort-wide model masks subject-specific dynamics, we additionally train two stratified Random Forests — one on Mathematics only (*n* = 395) and one on Portuguese only (*n* = 649) — using the same hyperparameters, the same feature set, and the same stratified 80/20 split protocol (`random_state = 42`). Table 5c reports the held-out metrics for all three models side by side. The dashboard's *Subject* toggle now switches between these three models in addition to filtering the displayed cohort.
+
+**Table 5c — Subject-stratified Random Forest performance on held-out test sets**
+
+| Model | n total | n test | At-risk in test | Accuracy | Precision | **Recall** | F1 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Combined (deployed default) | 1,044 | 209 | 46 | 91.4% | 79.2% | **82.6%** | 80.9% |
+| **Math only** | **395** | **79** | **26** | 89.9% | 82.1% | **88.5%** | 85.2% |
+| **Portuguese only** | **649** | **130** | **20** | 90.0% | 65.2% | **75.0%** | 69.8% |
+
+Two observations follow.
+
+**Math is easier to predict than Portuguese.** The Math-only model catches twenty-three of twenty-six at-risk students (recall 88.5%, F1 85.2%) and meaningfully outperforms the combined model on every metric except accuracy. The Portuguese-only model catches fifteen of twenty (recall 75.0%) at the cost of a much lower precision (65.2%) and F1 (69.8%). Two structural reasons drive this gap. First, the Mathematics cohort has a higher base rate of at-risk students (38.7% of Math students are at-risk versus 12.4% of Portuguese students), so the minority class is less imbalanced and the classifier sees more positive examples per training fold. Second, the Math test set (n = 79) is smaller but the at-risk class is denser (26 of 79 = 32.9% versus 20 of 130 = 15.4%); a small absolute change in catches has a larger relative effect on recall.
+
+**The combined model is essentially a weighted average.** With n = 1,044 combined and a 22.0% at-risk rate, the combined model's recall (82.6%) sits squarely between the two stratified models (88.5% Math, 75.0% Portuguese) — closer to the Portuguese number than to the Math number, because Portuguese contributes more rows. This makes the combined model the appropriate default when the user has not chosen a subject, but argues for the stratified models when a teacher is acting in a single-subject context. The dashboard surfaces this choice through the *Subject* toggle.
+
 ### 7.4 Diagnostic insight: bimodal G3 and the withdrawal cohort
 
 The G3 histogram exposes a clearly bimodal distribution: a primary mode centred near eleven out of twenty, plus a secondary spike at G3 = 0. This secondary mode corresponds to **53 students (5.1% of cohort)** whose final grade is recorded as zero — interpretable as students who withdrew or did not sit the final exam.
@@ -449,12 +467,11 @@ Three observations follow from the empirical results.
 
 ### 8.2 Limitations
 
-We list four concrete limitations of the present system.
+We list three concrete limitations of the present system.
 
-1. **Hardcoded ML numbers.** Pearson correlations, cluster statistics, and Random Forest metrics are baked into JavaScript object literals in `web/charts/*.js`. Re-running `analyze.py` regenerates the cleaned CSV and recomputes the cross-validation and baseline numbers, but the figures displayed on the dashboard must be copied across manually. The trade-off (no build step) is acceptable for this project but would not scale to a production deployment with frequent data updates.
-2. **Cohort-wide rather than subject-stratified model.** The Random Forest is trained on Math and Portuguese students combined. The Subject toggle in the dashboard re-filters the displayed cohort but does not re-train the model. A subject-stratified split would let the dashboard report subject-specific recall.
-3. **Pearson misses non-linearity.** The Pearson coefficient assumes a linear relationship. Variables such as `goout` may exhibit U-shaped or threshold relationships with G3 that the coefficient understates. Spearman rank correlation and mutual information would be reasonable extensions.
-4. **No live single-student inference.** The dashboard is read-only. A natural extension is an input panel that accepts a student's features and runs the classifier client-side via a serialised model (ONNX runtime or a hand-rolled tree-ensemble in JavaScript).
+1. **Hardcoded ML numbers.** Pearson correlations, cluster statistics, and Random Forest metrics (across all three stratifications) are baked into JavaScript object literals in `web/charts/*.js`. Re-running `analyze.py` regenerates the cleaned CSV and recomputes every number, but the figures displayed on the dashboard must be copied across manually. The trade-off (no build step) is acceptable for this project but would not scale to a production deployment with frequent data updates.
+2. **Pearson misses non-linearity.** The Pearson coefficient assumes a linear relationship. Variables such as `goout` may exhibit U-shaped or threshold relationships with G3 that the coefficient understates. Spearman rank correlation and mutual information would be reasonable extensions.
+3. **No live single-student inference.** The dashboard is read-only. A natural extension is an input panel that accepts a student's features and runs the classifier client-side via a serialised model (ONNX runtime or a hand-rolled tree-ensemble in JavaScript).
 
 ### 8.3 Threats to validity
 
