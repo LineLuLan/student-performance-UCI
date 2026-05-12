@@ -27,8 +27,8 @@
 <td width="50%"><b>Dark Mode</b></td>
 </tr>
 <tr>
-<td><img src="docs/screenshots/dashboard-light.jpg" alt="Dashboard light mode"></td>
-<td><img src="docs/screenshots/dashboard-dark.jpg" alt="Dashboard dark mode"></td>
+<td><img src="docs/screenshots/dashboard-light.png" alt="Dashboard light mode"></td>
+<td><img src="docs/screenshots/dashboard-dark.png" alt="Dashboard dark mode"></td>
 </tr>
 </table>
 
@@ -229,8 +229,8 @@ student-performance-UCI/
 │   ├── g2_vs_g3.png
 │   └── grade_distributions.png
 ├── docs/screenshots/          ← README assets
-│   ├── dashboard-light.jpg
-│   └── dashboard-dark.jpg
+│   ├── dashboard-light.png
+│   └── dashboard-dark.png
 └── web/                       ← deploy root
     ├── index.html
     ├── style.css

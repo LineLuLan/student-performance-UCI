@@ -250,7 +250,7 @@ All random operations use fixed seeds: `random_state = 42` for the train-test sp
 
 This section sets out the rationale for the chart-type and interaction choices in the dashboard. Each decision is grounded in the early-warning use case rather than in chart aesthetics.
 
-![Figure 1 — Dashboard at default state, light theme. Six cards on a 24-column grid: Risk Factors (lollipop) and Grade Correlation (scatter) anchor the top row; K-Means personas occupy the right column; the Dropout Risk Predictor confusion matrix, the period-by-period progression chart, and the grade distribution histogram complete the bottom row. KPI bar and insight strip sit above the grid.](docs/screenshots/dashboard-light.jpg)
+![Figure 1 — Dashboard at default state, light theme. Six cards on a 24-column grid: Risk Factors (lollipop) and Grade Correlation (scatter) anchor the top row; K-Means personas occupy the right column; the Dropout Risk Predictor confusion matrix, the period-by-period progression chart, and the grade distribution histogram complete the bottom row. KPI bar and insight strip sit above the grid.](docs/screenshots/dashboard-light.png)
 
 ### 5.1 Design principles
 
@@ -266,7 +266,7 @@ This section sets out the rationale for the chart-type and interaction choices i
 
 **Theme that persists.** Toggling dark mode survives a page reload via `localStorage`. First load respects the operating-system `prefers-color-scheme` preference. All charts redraw on theme change — no stale cached colours.
 
-![Figure 2 — Dashboard in dark mode. Identical layout to Figure 1; every chart, KPI value, and accent colour re-derives from CSS custom properties on theme toggle, with no cached colours.](docs/screenshots/dashboard-dark.jpg)
+![Figure 2 — Dashboard in dark mode. Identical layout to Figure 1; every chart, KPI value, and accent colour re-derives from CSS custom properties on theme toggle, with no cached colours.](docs/screenshots/dashboard-dark.png)
 
 ### 5.2 Chart-type rationale
 
@@ -635,8 +635,8 @@ student-performance-UCI/
 │   ├── g2_vs_g3.png
 │   └── grade_distributions.png
 ├── docs/screenshots/          Dashboard screenshots for documentation
-│   ├── dashboard-light.jpg
-│   └── dashboard-dark.jpg
+│   ├── dashboard-light.png
+│   └── dashboard-dark.png
 └── web/                       Deploy root (vercel.json points here)
     ├── index.html
     ├── style.css
@@ -660,8 +660,8 @@ Two figures are auto-embedded into `REPORT.docx` by `build_report.py` (`![alt](p
 
 | Figure | File | Embedded in `.docx`? | Referenced in |
 |---|---|---|---|
-| 1 | `docs/screenshots/dashboard-light.jpg` | **Yes — §5 opening** | §1, §5, §6 — overall dashboard layout |
-| 2 | `docs/screenshots/dashboard-dark.jpg` | **Yes — end of §5.1** | §5.1 — dark-mode rendering |
+| 1 | `docs/screenshots/dashboard-light.png` | **Yes — §5 opening** | §1, §5, §6 — overall dashboard layout |
+| 2 | `docs/screenshots/dashboard-dark.png` | **Yes — end of §5.1** | §5.1 — dark-mode rendering |
 | 3 | `visual/correlations.png` | No — see repo | §4.1, §7.1 — Pearson correlation matrix |
 | 4 | `visual/elbow.png` | No — see repo | §4.3 — K-Means elbow-method support for *k* = 3 |
 | 5 | `visual/g2_vs_g3.png` | No — see repo | §4.2, §7.1 — bivariate G2 vs G3 with OLS line |
