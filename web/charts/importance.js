@@ -2,6 +2,8 @@ import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 import { positionTooltip } from "./utils.js";
 
 // Real Pearson r values from Python analysis (combined Math + Portuguese, n=1044)
+// Showing top 10 by |r|; 5 weaker correlates (|r| < 0.10) are omitted from the
+// lollipop visual but remain in REPORT.md Table 3 for full academic disclosure.
 const FIELDS = [
   { key: "grade_mid2",      label: "Midterm 2 (G2)",    r:  0.9107 },
   { key: "grade_mid1",      label: "Midterm 1 (G1)",    r:  0.8091 },
@@ -13,11 +15,6 @@ const FIELDS = [
   { key: "age",             label: "Age",               r: -0.1253 },
   { key: "alcohol_weekend", label: "Weekend Alcohol",   r: -0.1157 },
   { key: "traveltime",      label: "Travel Time",       r: -0.1026 },
-  { key: "goout",           label: "Goes Out",          r: -0.0979 },
-  { key: "health",          label: "Health Status",     r: -0.0801 },
-  { key: "freetime",        label: "Free Time",         r: -0.0649 },
-  { key: "famrel",          label: "Family Relations",  r:  0.0545 },
-  { key: "absences",        label: "Absences",          r: -0.0457 },
 ];
 
 export function drawImportance(data, activeField = "grade_mid1") {
@@ -110,6 +107,13 @@ export function drawImportance(data, activeField = "grade_mid1") {
     .style("fill", d => d.key===activeField ? "var(--text-primary)" : "var(--text-secondary)")
     .style("font-weight", d => d.key===activeField ? "700" : "500")
     .text(d => d.label);
+
+  // Footnote — academic transparency about the truncation
+  container.append("div")
+    .style("font-family","var(--font-mono)").style("font-size","9.5px")
+    .style("color","var(--text-muted)").style("padding","4px 0 0 124px")
+    .style("opacity","0.7").style("letter-spacing","0.02em")
+    .text("Showing top 10 of 15 numeric features · 5 omitted with |r| < 0.10");
 
   // Legend — rendered in card-header via DOM
   const lgEl = document.getElementById("importance-legend");
