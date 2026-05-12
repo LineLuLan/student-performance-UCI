@@ -6,11 +6,11 @@
 
 **Team members**
 - **Tran Nam Anh** — Student ID **ITDSIU23030** — *Team Leader* — tnanh.gdsciu@gmail.com
-- **Nguyen Duc Hai** — Student ID **ITDSIU23006**
-- **Dang Minh Phat** — Student ID **ITDSIU23017**
+- **Nguyen Duc Hai** — Student ID **ITDSIU23006** — ngduchaidev0301@gmail.com
+- **Dang Minh Phat** — Student ID **ITDSIU23017** — dangminhphat753@gmail.com
 
-**Course:** `[COURSE CODE — COURSE NAME]`
-**Instructor:** `[INSTRUCTOR NAME]`
+**Course:** Data Science and Data Visualization
+**Instructor:** M.Sc. T. T. Tung
 **Institution:** International University — Vietnam National University Ho Chi Minh City (IU — VNU-HCM)
 **Submission date:** 16 May 2026
 
@@ -250,6 +250,8 @@ All random operations use fixed seeds: `random_state = 42` for the train-test sp
 
 This section sets out the rationale for the chart-type and interaction choices in the dashboard. Each decision is grounded in the early-warning use case rather than in chart aesthetics.
 
+![Figure 1 — Dashboard at default state, light theme. Six cards on a 24-column grid: Risk Factors (lollipop) and Grade Correlation (scatter) anchor the top row; K-Means personas occupy the right column; the Dropout Risk Predictor confusion matrix, the period-by-period progression chart, and the grade distribution histogram complete the bottom row. KPI bar and insight strip sit above the grid.](docs/screenshots/dashboard-light.jpg)
+
 ### 5.1 Design principles
 
 **Recall, not accuracy, leads.** A 91% accuracy on a 22% minority class is misleading. The dashboard renders the *MISSED ⚠* false-negative cell in red precisely because that is the operational cost of model error in an early-warning context.
@@ -263,6 +265,8 @@ This section sets out the rationale for the chart-type and interaction choices i
 **Data-tight Y-axis on the trajectory chart.** A fixed [0, 20] domain makes 1–2-point group differences invisible. The progression chart auto-zooms to where the mean lines actually live, with a ±1.5-grade buffer.
 
 **Theme that persists.** Toggling dark mode survives a page reload via `localStorage`. First load respects the operating-system `prefers-color-scheme` preference. All charts redraw on theme change — no stale cached colours.
+
+![Figure 2 — Dashboard in dark mode. Identical layout to Figure 1; every chart, KPI value, and accent colour re-derives from CSS custom properties on theme toggle, with no cached colours.](docs/screenshots/dashboard-dark.jpg)
 
 ### 5.2 Chart-type rationale
 
@@ -652,16 +656,16 @@ student-performance-UCI/
 
 ## Appendix C — Figures
 
-The following images are stored in the repository and should be embedded in the rendered `.docx` version of this report at the locations referenced below.
+Two figures are auto-embedded into `REPORT.docx` by `build_report.py` (`![alt](path)` markdown is parsed and the image is inserted at 6-inch width with the alt text rendered as a centred italic caption). Four additional supporting figures are stored in the `visual/` folder of the repository and can be referenced by the reader directly on the GitHub project.
 
-| Figure | File | Referenced in |
-|---|---|---|
-| 1 | `docs/screenshots/dashboard-light.jpg` | §1, §5, §6 — overall dashboard layout |
-| 2 | `docs/screenshots/dashboard-dark.jpg` | §5.4 — dark-mode rendering |
-| 3 | `visual/correlations.png` | §4.1, §7.1 — Pearson correlation matrix |
-| 4 | `visual/elbow.png` | §4.3 — K-Means elbow-method support for k = 3 |
-| 5 | `visual/g2_vs_g3.png` | §4.2, §7.1 — bivariate G2 vs G3 with OLS line |
-| 6 | `visual/grade_distributions.png` | §4.6, §7.4 — G1/G2/G3 distributions with the G3 = 0 spike |
+| Figure | File | Embedded in `.docx`? | Referenced in |
+|---|---|---|---|
+| 1 | `docs/screenshots/dashboard-light.jpg` | **Yes — §5 opening** | §1, §5, §6 — overall dashboard layout |
+| 2 | `docs/screenshots/dashboard-dark.jpg` | **Yes — end of §5.1** | §5.1 — dark-mode rendering |
+| 3 | `visual/correlations.png` | No — see repo | §4.1, §7.1 — Pearson correlation matrix |
+| 4 | `visual/elbow.png` | No — see repo | §4.3 — K-Means elbow-method support for *k* = 3 |
+| 5 | `visual/g2_vs_g3.png` | No — see repo | §4.2, §7.1 — bivariate G2 vs G3 with OLS line |
+| 6 | `visual/grade_distributions.png` | No — see repo | §4.6, §7.4 — G1/G2/G3 distributions with the G3 = 0 spike |
 
 ---
 
@@ -669,7 +673,7 @@ The following images are stored in the repository and should be embedded in the 
 
 Tick before submitting:
 
-- [ ] All `[BRACKETED]` placeholders in the cover page and Appendix A replaced with real names, student IDs, and emails.
+- [x] All `[BRACKETED]` placeholders in the cover page and Appendix A replaced with real names, student IDs, and emails (Tran Nam Anh / Nguyen Duc Hai / Dang Minh Phat; course *Data Science and Data Visualization*; instructor *M.Sc. T. T. Tung*).
 - [x] Original Kaggle dataset confirmed and named in §3.2 (*Student Performance Factors* by *lainguyn123*; migration rationale extended with the empirical-noise argument).
 - [ ] Video recorded, ≤ 15 minutes, exported at 1080p / 30 fps.
 - [ ] Video uploaded to Google Drive; shareable link copied.

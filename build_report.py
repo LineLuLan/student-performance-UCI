@@ -20,7 +20,7 @@ from docx.enum.table import WD_ALIGN_VERTICAL
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_LINE_SPACING
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
-from docx.shared import Cm, Pt, RGBColor
+from docx.shared import Cm, Inches, Pt, RGBColor
 
 ROOT = Path(__file__).parent
 SRC = ROOT / "REPORT.md"
@@ -32,6 +32,8 @@ INLINE_BOLD = re.compile(r"\*\*([^*]+)\*\*")
 INLINE_ITALIC = re.compile(r"(?<!\*)\*([^*\n]+)\*(?!\*)")
 INLINE_CODE = re.compile(r"`([^`]+)`")
 LINK = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
+# Block-level image: a paragraph that is exactly `![alt](path)` (no other text).
+IMAGE_ONLY = re.compile(r"^\s*!\[([^\]]*)\]\(([^)]+)\)\s*$")
 
 
 def _add_run(paragraph, text, *, bold=False, italic=False, code=False, font="Times New Roman", size=12):
@@ -191,6 +193,13 @@ def parse_markdown(text):
             i += 1
             continue
 
+        # standalone image (a line containing only ![alt](path))
+        m = IMAGE_ONLY.match(stripped)
+        if m:
+            yield ("image", m.group(1), m.group(2))
+            i += 1
+            continue
+
         # code fence
         if stripped.startswith("```"):
             lang = stripped[3:].strip()
@@ -267,6 +276,8 @@ def parse_markdown(text):
             if re.match(r"^[-*+]\s+", s) or re.match(r"^\d+\.\s+", s):
                 break
             if "|" in s and i + 1 < n and re.match(r"^\s*\|?\s*[:\-| ]+\|?\s*$", lines[i + 1]):
+                break
+            if IMAGE_ONLY.match(s):
                 break
             para_lines.append(nxt)
             i += 1
@@ -389,6 +400,30 @@ def render(doc, tokens):
                 pf.line_spacing_rule = WD_LINE_SPACING.MULTIPLE
                 pf.line_spacing = 1.15
                 pf.space_after = Pt(2)
+            continue
+
+        if kind == "image":
+            _, alt, path = token
+            img_path = ROOT / path
+            if not img_path.exists():
+                # Fall back to a placeholder paragraph noting the missing figure
+                p = doc.add_paragraph()
+                _add_run(p, f"[Missing figure: {path}]", italic=True)
+                p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                continue
+            p = doc.add_paragraph()
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            run = p.add_run()
+            try:
+                run.add_picture(str(img_path), width=Inches(6.0))
+            except Exception as e:  # noqa: BLE001 — surface the issue in the doc
+                _add_run(p, f"[Could not embed {path}: {e}]", italic=True)
+            # Caption line directly under the image
+            if alt:
+                cap = doc.add_paragraph()
+                cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                _add_run(cap, alt, italic=True, size=10)
+                cap.paragraph_format.space_after = Pt(8)
             continue
 
         if kind == "table":
