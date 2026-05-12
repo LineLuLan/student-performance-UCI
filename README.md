@@ -190,7 +190,7 @@ This is not a generic EDA notebook. Specific design decisions were made to align
 | Card | Visualisation | Interaction |
 |---|---|---|
 | **Grade Correlation** *(scatter)* | G3 ~ X-feature with seeded jitter, OLS line, *r* / *R²* in header, pass threshold at G3 = 10 | X-axis bound to *Key Drivers* — clicking a factor there repoints the scatter |
-| **Key Drivers of Final Grade** *(lollipop)* | Pearson *r* against G3 for 15 numeric features, sorted by `\|r\|`, green (positive) / red (negative) | Click any dot → drives the scatter; hover → sign, *r*, *R²* impact |
+| **Key Drivers of Final Grade** *(lollipop)* | Pearson *r* against G3 for the **top 10 of 15 numeric features** (cutoff `\|r\| ≥ 0.10`), sorted by `\|r\|`, green (positive) / red (negative) | Click any dot → drives the scatter; hover → sign, *r*, *R²* impact |
 | **Student Behavioural Profiles** *(K-Means personas)* | 3 cluster tabs: name, size, share, average G3, at-risk badge, six attribute bars | Tab click → switch active persona; hover an attribute → group interpretation |
 | **Dropout Risk Predictor** *(confusion matrix + metrics)* | 2×2 matrix with explicit ACTUAL ↓ / ← PREDICTED → axes; cells colour-coded by outcome (MISSED ⚠ in red); 4 metrics as bars | Hover any cell or metric → operational meaning |
 | **Period-by-Period Progression** *(trajectory)* | Up to 120 spaghetti lines + group mean ± 1σ bands; data-tight Y-axis; G1 → G3 delta annotation; "no significant gap" hint when groups overlap | Group-by dropdown switches grouping dimension independently of the global view |

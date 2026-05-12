@@ -78,7 +78,7 @@ Each component follows the same micro-structure: **question → chart → encodi
 | | |
 |---|---|
 | **On-screen** | Move cursor to the *Key Drivers of Final Grade* card. Pause one second. Hover the top lollipop (grade_mid2). Tooltip appears. Then hover the `failures` row. Tooltip appears. Move cursor away. |
-| **Narration** | *"The first card answers: which signals matter at all? We compute the Pearson correlation between each of fifteen numeric features and the final grade, and rank by absolute value. Green stems are protective factors — positively correlated with grade. Red stems are risk factors — negatively correlated. The strongest signal is the second midterm grade at r equals zero point nine one. The first midterm follows at zero point eight one. The strongest risk factor is past failures, with r equals negative zero point three eight."* |
+| **Narration** | *"The first card answers: which signals matter at all? We compute the Pearson correlation between each of fifteen numeric features and the final grade, and visualise the top ten by absolute value — the five weakest correlates, all with absolute r below zero point one, are kept in the academic table but omitted from the chart to reduce noise. Green stems are protective factors — positively correlated with grade. Red stems are risk factors — negatively correlated. The strongest signal is the second midterm grade at r equals zero point nine one. The first midterm follows at zero point eight one. The strongest risk factor is past failures, with r equals negative zero point three eight."* |
 
 ## Scene 5 · Grade Correlation (1:50 – 2:40)
 

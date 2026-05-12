@@ -5,13 +5,13 @@
 ---
 
 **Team members**
-- `[MEMBER 1 FULL NAME]` — Student ID `[MSSV 1]` — `[MEMBER 1 EMAIL]`
-- `[MEMBER 2 FULL NAME]` — Student ID `[MSSV 2]` — `[MEMBER 2 EMAIL]`
-- `[MEMBER 3 FULL NAME]` — Student ID `[MSSV 3]` — `[MEMBER 3 EMAIL]`
+- **Tran Nam Anh** — Student ID **ITDSIU23030** — *Team Leader* — tnanh.gdsciu@gmail.com
+- **Nguyen Duc Hai** — Student ID **ITDSIU23006**
+- **Dang Minh Phat** — Student ID **ITDSIU23017**
 
 **Course:** `[COURSE CODE — COURSE NAME]`
 **Instructor:** `[INSTRUCTOR NAME]`
-**Institution:** `[UNIVERSITY NAME]`
+**Institution:** International University — Vietnam National University Ho Chi Minh City (IU — VNU-HCM)
 **Submission date:** 16 May 2026
 
 **Repository:** https://github.com/LineLuLan/student-performance-UCI
@@ -177,7 +177,7 @@ This section describes the analytical methods that produce the numbers visualise
 
 ### 4.1 Pearson correlation (RQ1)
 
-We compute the Pearson product-moment correlation coefficient between each of fifteen numeric features and the target `grade_final`. The fifteen features are: `grade_mid1`, `grade_mid2`, `absences`, `failures`, `studytime`, `mother_edu`, `father_edu`, `goout`, `alcohol_weekday`, `alcohol_weekend`, `health`, `freetime`, `famrel`, `age`, `traveltime`.
+We compute the Pearson product-moment correlation coefficient between each of fifteen numeric features and the target `grade_final`. The fifteen features are: `grade_mid1`, `grade_mid2`, `absences`, `failures`, `studytime`, `mother_edu`, `father_edu`, `goout`, `alcohol_weekday`, `alcohol_weekend`, `health`, `freetime`, `famrel`, `age`, `traveltime`. All fifteen are reported in Table 3 of §7.1; the *Key Drivers* card visualises only the **top ten by |r|** (cutoff |r| ≥ 0.10) — the five weakest correlates (`goout`, `health`, `freetime`, `famrel`, `absences`, all with |r| < 0.10) are omitted from the lollipop chart for visual clarity but remain in the academic table.
 
 Correlations are sorted by absolute value, with sign preserved. The sign carries operational meaning: positive correlation indicates a *protective* factor (e.g., higher G2 predicts higher G3), negative correlation indicates a *risk* factor (e.g., more past failures predicts lower G3). Both are rendered distinctly in the dashboard (green and red lollipop stems).
 
@@ -499,13 +499,13 @@ This project has presented an end-to-end pipeline — from raw UCI data through 
 
 ### 9.2 Future work
 
-Five concrete directions for extension, in priority order:
+Three concrete directions for extension, in priority order:
 
 1. **Random Forest feature importance** as a complement to Pearson r in the Key Drivers card, exposing non-linear feature contributions the Pearson coefficient understates.
-2. **Subject-stratified models and metrics**, with the Random Forest re-trained when the Subject toggle changes, so the dashboard can report subject-specific recall.
-3. **Live single-student inference**, with a serialised model running client-side, so a teacher can type a hypothetical student profile and receive a risk score with feature attributions.
-4. **Address (urban / rural) and family status as additional view-by dimensions**, to expose socio-economic and family-stability proxies already present in the cleaned dataset.
-5. **K-fold cross-validation** in the analytical pipeline, replacing the single hold-out with a more statistically robust estimate.
+2. **Live single-student inference**, with a serialised model running client-side, so a teacher can type a hypothetical student profile and receive a risk score with feature attributions.
+3. **Address (urban / rural) and family status as additional view-by dimensions**, to expose socio-economic and family-stability proxies already present in the cleaned dataset.
+
+Two items previously listed as future work have already been delivered in this submission and are documented in §4 and §7.3: 5-fold stratified cross-validation with Logistic-Regression and Decision-Tree baselines, and subject-stratified Random Forest models that the *Subject* toggle switches between live (recall jumps to 88.5% on Math-only, drops to 75.0% on Portuguese-only).
 
 ---
 
@@ -541,17 +541,17 @@ Five concrete directions for extension, in priority order:
 
 | Member | Role | Primary deliverables | Share |
 |---|---|---|---:|
-| `[MEMBER 1]` | Data & ML Engineer | `analysis/analyze.py`; cleaned dataset; Pearson, K-Means, and Random Forest analyses; EDA notebook; hardcoded ML constants in `web/charts/{importance,personas,risk}.js` | **35%** |
-| `[MEMBER 2]` | Visualisation & Frontend | All six D3 chart modules; main state machine in `web/main.js`; CSS theme system; 24-column grid; cross-card linking; accessibility baseline; Vercel deployment | **35%** |
-| `[MEMBER 3]` | Documentation, Report & Video | README, USECASE, this report, video script, video recording and editing, screenshots, submission logistics | **30%** |
+| **Tran Nam Anh** (ITDSIU23030, *Leader*) | Data & ML Engineer | `analysis/analyze.py`; cleaned dataset; Pearson, K-Means, and Random Forest analyses (including 5-fold CV, LogReg / DTree baselines, subject-stratified RF models); EDA notebook; hardcoded ML constants in `web/charts/{importance,personas,risk}.js` | **35%** |
+| **Nguyen Duc Hai** (ITDSIU23006) | Visualisation & Frontend | All six D3 chart modules; main state machine in `web/main.js`; live model-switching wiring in `risk.js`; CSS theme system; 24-column grid; cross-card linking; accessibility baseline; Vercel deployment | **35%** |
+| **Dang Minh Phat** (ITDSIU23017) | Documentation, Report & Video | README, USECASE, this report, video script, video recording and editing, screenshots, submission logistics | **30%** |
 
 Each member confirms by signing below that the percentages above reflect their actual contribution.
 
 | Member | Signature | Date |
 |---|---|---|
-| `[MEMBER 1]` | __________________ | __ / __ / 2026 |
-| `[MEMBER 2]` | __________________ | __ / __ / 2026 |
-| `[MEMBER 3]` | __________________ | __ / __ / 2026 |
+| Tran Nam Anh | __________________ | __ / __ / 2026 |
+| Nguyen Duc Hai | __________________ | __ / __ / 2026 |
+| Dang Minh Phat | __________________ | __ / __ / 2026 |
 
 ---
 
