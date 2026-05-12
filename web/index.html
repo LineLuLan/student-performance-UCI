@@ -106,7 +106,10 @@
           <div class="card-header">
             <div class="card-header-top">
               <div class="card-tag">Risk Factors</div>
-              <div class="card-badge" style="color:var(--accent-blue);background:color-mix(in srgb,var(--accent-blue) 10%,transparent);">Pearson r · Real Data</div>
+              <div class="importance-mode-toggle" id="importance-mode-toggle" role="group" aria-label="Importance metric">
+                <button class="imp-btn active" data-mode="pearson">Pearson r</button>
+                <button class="imp-btn" data-mode="rf">RF Importance</button>
+              </div>
             </div>
             <div style="display:flex;align-items:center;justify-content:space-between;margin-top:2px;">
               <h2 class="card-title">Key Drivers of Final Grade</h2>

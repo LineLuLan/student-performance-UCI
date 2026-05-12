@@ -73,12 +73,12 @@ You can build these in Google Slides, Keynote, or even a single Figma frame each
 
 Each component follows the same micro-structure: **question → chart → encoding → readout.** Keep cursor movements deliberate.
 
-## Scene 4 · Key Drivers (1:00 – 1:50)
+## Scene 4 · Key Drivers + RF Importance toggle (1:00 – 2:15)
 
 | | |
 |---|---|
-| **On-screen** | Move cursor to the *Key Drivers of Final Grade* card. Pause one second. Hover the top lollipop (grade_mid2). Tooltip appears. Then hover the `failures` row. Tooltip appears. Move cursor away. |
-| **Narration** | *"The first card answers: which signals matter at all? We compute the Pearson correlation between each of fifteen numeric features and the final grade, and visualise the top ten by absolute value — the five weakest correlates, all with absolute r below zero point one, are kept in the academic table but omitted from the chart to reduce noise. Green stems are protective factors — positively correlated with grade. Red stems are risk factors — negatively correlated. The strongest signal is the second midterm grade at r equals zero point nine one. The first midterm follows at zero point eight one. The strongest risk factor is past failures, with r equals negative zero point three eight."* |
+| **On-screen** | Move cursor to the *Key Drivers of Final Grade* card. Pause one second. Hover the top lollipop (grade_mid2). Tooltip appears. Then hover the `failures` row. Tooltip appears. Cursor moves to the **Pearson r | RF Importance** toggle in the card header — click **RF Importance**. Chart redraws with blue lollipops. Hover the *Absences* row — tooltip shows RF importance 0.052 with the "non-linear, no sign" badge. Then click the **Pearson r** button to return. |
+| **Narration** | *"The first card answers: which signals matter at all? We compute the Pearson correlation between each of fifteen numeric features and the final grade, and visualise the top ten by absolute value. Green stems are protective factors — the second midterm at r equals zero point nine one, the first midterm at zero point eight one. Red stems are risk factors — past failures at negative zero point three eight. But Pearson only captures linear effects. The card has a second mode: toggle to **Random Forest Importance**." — click the toggle. — "The same chart redraws against the trained Random Forest's Gini importance. Look at absences: in Pearson mode, absences sat at rank fifteen with r equals negative zero point zero four six — so weak it was dropped from the visualisation entirely. In Random Forest mode, absences is rank four, at zero point zero five two. That is the signature of a threshold effect — a student with zero to three absences passes at the cohort rate, but a student with ten or more is sharply more at-risk — and a linear coefficient averages it to nothing while a tree ensemble splits at the threshold and catches it. The toggle turns a hidden statistical phenomenon into a visible card behaviour."* — toggle back to Pearson before the next scene. |
 
 ## Scene 5 · Grade Correlation (1:50 – 2:40)
 
@@ -232,13 +232,13 @@ One continuous live demo. No cuts between cards — the cursor moves naturally b
 | Section | Duration |
 |---|---|
 | Title + dataset slides | 0:55 |
-| Part 1 (six components + global controls) | 5:30 |
+| Part 1 (six components + global controls, incl. Scene 4 RF Importance toggle demo) | 5:55 |
 | Transition | 0:20 |
 | Part 2 (use case walkthrough, incl. live stratification scene 17b) | 6:10 |
 | Closing (4-number recap + limitations + end card) | 1:00 |
-| **Total** | **13:55** |
+| **Total** | **14:20** |
 
-Sits inside the 10–15 min window with ~1 minute of headroom for natural pauses and any sentence you re-take.
+Sits inside the 10–15 min window with ~40 seconds of headroom for natural pauses and any sentence you re-take. Two "wow moments" in the script — the Pearson↔RF Importance toggle in Scene 4 (showing `absences` jumping from rank 15 to rank 4) and the live Subject-toggle model switching in Scene 17b (showing recall jumping from 82.6% combined to 88.5% Math-only).
 
 ---
 

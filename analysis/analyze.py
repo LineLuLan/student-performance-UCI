@@ -82,20 +82,30 @@ def train_rf(sub_df, label):
         'tn': int(cm[0][0]), 'fp': int(cm[0][1]),
         'fn': int(cm[1][0]), 'tp': int(cm[1][1]),
     }
-    return data, (Xtr, Xte, ytr, yte)
+    return data, (Xtr, Xte, ytr, yte), m
 
 # Combined model (deployed model — preserves the existing ===RF=== output)
-rf_data, (X_train, X_test, y_train, y_test) = train_rf(df, 'combined')
+rf_data, (X_train, X_test, y_train, y_test), rf_model = train_rf(df, 'combined')
 X_rf = df[feature_cols].fillna(0); y_rf = df['at_risk']  # retained for CV below
 print('===RF==='); print(json.dumps(rf_data)); print('===END===')
 sys.stdout.flush()
 
+# RF feature importances on the combined model — drives the dual-mode
+# "Pearson r | RF Importance" toggle in the Key Drivers card. Each value is
+# in [0,1] and they sum to 1 across feature_cols.
+rf_importance = sorted(
+    [{'key': k, 'importance': round(float(v), 4)}
+     for k, v in zip(feature_cols, rf_model.feature_importances_)],
+    key=lambda r: r['importance'], reverse=True)
+print('===RF_IMPORTANCE==='); print(json.dumps(rf_importance)); print('===END===')
+sys.stdout.flush()
+
 # Subject-stratified models
-rf_math, _ = train_rf(df[df['subject'] == 'math'].reset_index(drop=True), 'math')
+rf_math, _, _ = train_rf(df[df['subject'] == 'math'].reset_index(drop=True), 'math')
 print('===RF_MATH==='); print(json.dumps(rf_math)); print('===END===')
 sys.stdout.flush()
 
-rf_por, _ = train_rf(df[df['subject'] == 'portuguese'].reset_index(drop=True), 'portuguese')
+rf_por, _, _ = train_rf(df[df['subject'] == 'portuguese'].reset_index(drop=True), 'portuguese')
 print('===RF_POR==='); print(json.dumps(rf_por)); print('===END===')
 sys.stdout.flush()
 
