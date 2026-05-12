@@ -179,6 +179,15 @@ This section describes the analytical methods that produce the numbers visualise
 
 We compute the Pearson product-moment correlation coefficient between each of fifteen numeric features and the target `grade_final`. The fifteen features are: `grade_mid1`, `grade_mid2`, `absences`, `failures`, `studytime`, `mother_edu`, `father_edu`, `goout`, `alcohol_weekday`, `alcohol_weekend`, `health`, `freetime`, `famrel`, `age`, `traveltime`. All fifteen are reported in Table 3 of §7.1; the *Key Drivers* card visualises only the **top ten by |r|** (cutoff |r| ≥ 0.10) — the five weakest correlates (`goout`, `health`, `freetime`, `famrel`, `absences`, all with |r| < 0.10) are omitted from the lollipop chart for visual clarity but remain in the academic table.
 
+### 4.1.1 Dual-mode importance: Pearson r and Random Forest gini
+
+Pearson r captures *linear* association only. To expose the *non-linear* and *threshold* effects the linear coefficient understates, the *Key Drivers* card now toggles between two metrics:
+
+- **Pearson r mode** (default) — green-positive / red-negative lollipops over the top ten numeric features by |r|, as described above.
+- **Random Forest importance mode** — single-colour lollipops sorted by `feature_importances_` (Gini-impurity reduction) from the trained Random Forest of §4.4, normalised to sum to 1 across the RF's thirteen input features; the top ten are shown.
+
+The two modes agree on the top three drivers (G2, G1, `failures`) but diverge sharply lower down. The most diagnostic example is `absences`: Pearson r = −0.046 (rank 15 of 15, dropped from the lollipop visual at |r| ≥ 0.10) versus RF importance 0.052 (rank 4 of 13). The discrepancy is consistent with a *threshold* relationship — a student with zero-to-three absences is essentially as likely to pass as the cohort average, but a student with ten or more absences is sharply more at-risk — which a Pearson coefficient averages out to near zero but a tree ensemble captures through repeated splits at the threshold. The dual-mode toggle therefore turns an otherwise hidden statistical phenomenon into a directly inspectable card behaviour.
+
 Correlations are sorted by absolute value, with sign preserved. The sign carries operational meaning: positive correlation indicates a *protective* factor (e.g., higher G2 predicts higher G3), negative correlation indicates a *risk* factor (e.g., more past failures predicts lower G3). Both are rendered distinctly in the dashboard (green and red lollipop stems).
 
 ### 4.2 Bivariate regression visualisation (RQ2)
@@ -467,11 +476,10 @@ Three observations follow from the empirical results.
 
 ### 8.2 Limitations
 
-We list three concrete limitations of the present system.
+We list two concrete limitations of the present system.
 
-1. **Hardcoded ML numbers.** Pearson correlations, cluster statistics, and Random Forest metrics (across all three stratifications) are baked into JavaScript object literals in `web/charts/*.js`. Re-running `analyze.py` regenerates the cleaned CSV and recomputes every number, but the figures displayed on the dashboard must be copied across manually. The trade-off (no build step) is acceptable for this project but would not scale to a production deployment with frequent data updates.
-2. **Pearson misses non-linearity.** The Pearson coefficient assumes a linear relationship. Variables such as `goout` may exhibit U-shaped or threshold relationships with G3 that the coefficient understates. Spearman rank correlation and mutual information would be reasonable extensions.
-3. **No live single-student inference.** The dashboard is read-only. A natural extension is an input panel that accepts a student's features and runs the classifier client-side via a serialised model (ONNX runtime or a hand-rolled tree-ensemble in JavaScript).
+1. **Hardcoded ML numbers.** Pearson correlations, cluster statistics, Random Forest metrics (across all three stratifications), and the Random Forest feature-importance vector are baked into JavaScript object literals in `web/charts/*.js`. Re-running `analyze.py` regenerates the cleaned CSV and recomputes every number, but the figures displayed on the dashboard must be copied across manually. The trade-off (no build step) is acceptable for this project but would not scale to a production deployment with frequent data updates.
+2. **No live single-student inference.** The dashboard is read-only. A natural extension is an input panel that accepts a student's features and runs the classifier client-side via a serialised model (ONNX runtime or a hand-rolled tree-ensemble in JavaScript).
 
 ### 8.3 Threats to validity
 
@@ -499,13 +507,12 @@ This project has presented an end-to-end pipeline — from raw UCI data through 
 
 ### 9.2 Future work
 
-Three concrete directions for extension, in priority order:
+Two concrete directions for extension, in priority order:
 
-1. **Random Forest feature importance** as a complement to Pearson r in the Key Drivers card, exposing non-linear feature contributions the Pearson coefficient understates.
-2. **Live single-student inference**, with a serialised model running client-side, so a teacher can type a hypothetical student profile and receive a risk score with feature attributions.
-3. **Address (urban / rural) and family status as additional view-by dimensions**, to expose socio-economic and family-stability proxies already present in the cleaned dataset.
+1. **Live single-student inference**, with a serialised model running client-side, so a teacher can type a hypothetical student profile and receive a risk score with feature attributions.
+2. **Address (urban / rural) and family status as additional view-by dimensions**, to expose socio-economic and family-stability proxies already present in the cleaned dataset.
 
-Two items previously listed as future work have already been delivered in this submission and are documented in §4 and §7.3: 5-fold stratified cross-validation with Logistic-Regression and Decision-Tree baselines, and subject-stratified Random Forest models that the *Subject* toggle switches between live (recall jumps to 88.5% on Math-only, drops to 75.0% on Portuguese-only).
+Three items previously listed as future work have already been delivered in this submission and are documented in §4 and §7.3: 5-fold stratified cross-validation with Logistic-Regression and Decision-Tree baselines (§4.4 + §7.3); subject-stratified Random Forest models that the *Subject* toggle switches between live (recall jumps to 88.5% on Math-only, drops to 75.0% on Portuguese-only — §7.3.1); and the dual-mode Pearson/RF importance toggle in the *Key Drivers* card, which exposes the non-linear / threshold behaviour the linear coefficient understates (§4.1.1, with `absences` as the headline example — rank 15 in Pearson, rank 4 in RF importance).
 
 ---
 

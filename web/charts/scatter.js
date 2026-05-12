@@ -17,6 +17,11 @@ const FIELD_LABELS = {
   freetime:         "Free Time",
   famrel:           "Family Relations",
   absences:         "Absences",
+  // Binary features surfaced by RF importance mode
+  romantic:         "Romantic Relationship (0/1)",
+  internet:         "Internet Access (0/1)",
+  schoolsup:        "Extra School Support (0/1)",
+  activities:       "Extracurricular Activities (0/1)",
 };
 
 export function drawScatter(data, xField = "grade_mid1") {

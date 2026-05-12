@@ -59,6 +59,7 @@ let currentSubject = "all";
 let activeChips    = new Set(VIEW_CONFIG[currentView].values.map(String));
 let scatterXField  = "grade_mid1";
 let histGrade      = "grade_final";
+let importanceMode = "pearson";
 window.__viewField__  = VIEW_CONFIG[currentView].field;
 window.__viewColors__ = VIEW_CONFIG[currentView].colors;
 window.__viewValues__ = VIEW_CONFIG[currentView].values;
@@ -165,6 +166,16 @@ document.getElementById("subject-toggle").addEventListener("click", e => {
   update();
 });
 
+// ── Importance mode toggle (Pearson r | RF Importance) ──────────
+document.getElementById("importance-mode-toggle").addEventListener("click", e => {
+  const btn = e.target.closest(".imp-btn");
+  if (!btn) return;
+  document.querySelectorAll(".imp-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  importanceMode = btn.dataset.mode;
+  drawImportance(allData, scatterXField, importanceMode);
+});
+
 // ── Theme toggle ─────────────────────────────────────────────────
 const themeBtn = document.getElementById("theme-toggle");
 themeBtn.setAttribute("aria-pressed", document.documentElement.dataset.theme === "dark" ? "true" : "false");
@@ -235,7 +246,7 @@ window.onFactorClick = function(field, label) {
   const titleEl = document.getElementById("scatter-title");
   if (titleEl) titleEl.textContent = `${label} vs Final Grade G3`;
   drawScatter(getFilteredData(), scatterXField);
-  drawImportance(allData, scatterXField);
+  drawImportance(allData, scatterXField, importanceMode);
 };
 
 // ── Update cycle ─────────────────────────────────────────────────
@@ -248,7 +259,7 @@ function update() {
 
 function drawAll(data) {
   drawScatter(data, scatterXField);
-  drawImportance(allData, scatterXField);
+  drawImportance(allData, scatterXField, importanceMode);
   drawProgression(data, document.getElementById("progression-select").value);
   drawHistogram(data, histGrade);
   drawPersonas();
