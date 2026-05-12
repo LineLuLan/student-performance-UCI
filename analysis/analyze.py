@@ -142,6 +142,55 @@ rf_por, _, _ = train_rf(df[df['subject'] == 'portuguese'].reset_index(drop=True)
 print('===RF_POR==='); print(json.dumps(rf_por)); print('===END===')
 sys.stdout.flush()
 
+# ── Fairness audit on the combined Random Forest ──────────────────
+# Recompute the same stratified test split on a reset-indexed copy of df so
+# we can attach the demographic `sex` column to each predicted row. The split
+# is byte-identical to the one inside train_rf(df, 'combined') because both
+# use random_state=42 + stratify=y on the same feature matrix.
+_df_rs = df.reset_index(drop=True)
+_Xf = _df_rs[feature_cols].fillna(0)
+_yf = _df_rs['at_risk']
+_, X_te_fair, _, y_te_fair = train_test_split(
+    _Xf, _yf, test_size=0.2, random_state=42, stratify=_yf)
+test_rows = _df_rs.loc[X_te_fair.index]
+y_pred_fair = rf_model.predict(X_te_fair)
+y_true_fair = y_te_fair.values
+
+fairness = {}
+for sex_val, label in [('f', 'female'), ('m', 'male')]:
+    mask = (test_rows['sex'].values == sex_val)
+    yt = y_true_fair[mask]; yp = y_pred_fair[mask]
+    cm = confusion_matrix(yt, yp, labels=[0, 1]).tolist()
+    p_f, r_f, f1_f, _ = precision_recall_fscore_support(
+        yt, yp, pos_label=1, average='binary', zero_division=0)
+    fairness[label] = {
+        'n_test':     int(mask.sum()),
+        'n_at_risk':  int(int(yt.sum())),
+        'accuracy':   round(float((yt == yp).mean()), 4),
+        'precision':  round(float(p_f), 4),
+        'recall':     round(float(r_f), 4),
+        'f1':         round(float(f1_f), 4),
+        'tn': int(cm[0][0]), 'fp': int(cm[0][1]),
+        'fn': int(cm[1][0]), 'tp': int(cm[1][1]),
+        'selection_rate': round(float((yp == 1).mean()), 4),
+    }
+# Disparity ratios (smaller / larger so the ratio is always <= 1; closer to 1
+# means better fairness; 80 % is the common four-fifths rule of thumb).
+def _ratio(a, b):
+    if b == 0 or a == 0: return None
+    lo, hi = sorted([a, b])
+    return round(lo / hi, 4)
+fairness['disparity'] = {
+    'recall_ratio':         _ratio(fairness['female']['recall'],
+                                   fairness['male']['recall']),
+    'precision_ratio':      _ratio(fairness['female']['precision'],
+                                   fairness['male']['precision']),
+    'selection_rate_ratio': _ratio(fairness['female']['selection_rate'],
+                                   fairness['male']['selection_rate']),
+}
+print('===FAIRNESS==='); print(json.dumps(fairness)); print('===END===')
+sys.stdout.flush()
+
 # ── 5-fold stratified cross-validation on Random Forest ──────────
 cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 cv_scoring = ['accuracy', 'precision', 'recall', 'f1']
