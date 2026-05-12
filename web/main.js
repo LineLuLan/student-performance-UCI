@@ -19,7 +19,7 @@ const VIEW_CONFIG = {
     field:      "sex",
     values:     ["f", "m"],
     chipLabels: ["Female", "Male"],
-    colors:     ["var(--accent-purple)", "var(--accent-blue)"],
+    colors:     ["var(--accent-orange)", "var(--accent-blue)"],
     insightLabel: "GENDER GAP",
     scatterTitle: "Grade Distribution by Gender",
   },

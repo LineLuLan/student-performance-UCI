@@ -46,10 +46,13 @@ export function drawScatter(data, xField = "grade_mid1") {
   const xScale = d3.scaleLinear().domain(xDomain).range([0, W]).nice();
   const yScale = d3.scaleLinear().domain([0, 20]).range([H, 0]);
 
-  // Color scale from current view
-  const allVals  = [...new Set(data.map(d => String(d[viewField])))];
+  // Color scale from current view — keyed by viewValues (canonical) so a
+  // category's colour stays stable even when the other chip is filtered out.
+  // Previously this used the filtered `data` to derive keys, so the surviving
+  // category inherited viewColors[0] regardless of which value it was.
   const colorMap = {};
-  allVals.forEach((v, i) => colorMap[v] = viewColors[i % viewColors.length]);
+  viewValues.forEach((v, i) => colorMap[v] = viewColors[i % viewColors.length]);
+  const allVals  = [...new Set(data.map(d => String(d[viewField])))]; // legend only
 
   // Keep a reference to the SVG element so we can draw the top strip on it directly
   const svgEl = container.append("svg").attr("width", width).attr("height", height);
