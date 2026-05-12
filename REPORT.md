@@ -399,6 +399,22 @@ Table 4 reports the three K-Means clusters with their behavioural attributes and
 
 The Social Risk Group has roughly double the cohort-average absences and roughly double the cohort-average weekend alcohol score. Its at-risk rate is 29.4%, more than double that of the Focused Achievers cluster. These clusters are recovered from lifestyle features alone — the grade variables are deliberately excluded from the clustering input — so the elevated at-risk rate in the Social Risk Group constitutes independent evidence that lifestyle is a meaningful predictor beyond academic history.
 
+#### 7.2.1 Subject-stratified K-Means
+
+The K-Means fit is repeated independently on the Mathematics-only and Portuguese-only sub-cohorts under the same hyperparameters and the same lifestyle-feature input. After fitting, clusters are sorted by at-risk rate ascending and tagged with semantic keys (*focused* / *average* / *social_risk*) so the same colour and name refer to the same behavioural pattern across subjects. The dashboard's *Subject* toggle switches between the three fits live; the user sees the same three persona tabs, but the numbers behind each tab re-compute.
+
+**Table 4b — Same archetype, different subject: at-risk rate and grade per cluster**
+
+| Cluster | Combined (n) | Combined at-risk | Math (n) | **Math at-risk** | Portuguese (n) | **Por at-risk** |
+|---|---:|---:|---:|---:|---:|---:|
+| *Focused Achievers* | 207 | 12.6% | 86 | 23.3% | 125 | **6.4%** |
+| *Average Learners* | 524 | 21.4% | 202 | 32.2% | 313 | 15.0% |
+| *Social Risk Group* | 313 | 29.4% | 107 | **42.1%** | 211 | 21.3% |
+
+The most informative observation in Table 4b is that the *Social Risk Group* archetype carries very different operational risk depending on subject. In Mathematics, 42.1% of Social Risk Group students fail the final — almost half. In Portuguese, the same archetype fails at 21.3% — about the same rate as the combined-cohort *Average Learners*. A Portuguese teacher seeing a Social Risk Group student needs a different response than a Math teacher seeing the same profile. The 20-point spread is invisible to the combined model, and only emerges once the dashboard's Subject toggle re-fits K-Means on each sub-cohort.
+
+A second observation: even *Focused Achievers* in Mathematics fail at 23.3% — higher than the combined cohort's *Average Learners*. The Math curriculum is structurally harder in this dataset, so the lowest-risk lifestyle archetype in Math is still more at-risk than the middle archetype in the combined view. The dashboard surfaces this by recomputing the percentage on the *AT-RISK* badge live as the user clicks through the Subject toggle.
+
 ### 7.3 Classifier performance (RQ4)
 
 We report three classifiers on the held-out test set (n = 209, of which 46 are at-risk), and a 5-fold stratified cross-validation summary on the Random Forest.
