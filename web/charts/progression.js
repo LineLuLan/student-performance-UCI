@@ -89,13 +89,38 @@ export function drawProgression(data, groupBy = "sex") {
   const meanLineGen = d3.line().x(d=>xScale(d.p)).y(d=>yScale(d.mu));
 
   svg.append("g").attr("clip-path","url(#prog-clip)")
+    .attr("pointer-events","none")
     .selectAll("path").data(sample).join("path")
     .attr("class","spaghetti-line")
     .attr("d", d => lineGen(PERIODS.map(p => ({ p: p.key, v: d[p.key] }))))
     .attr("stroke","var(--text-muted)").attr("stroke-width",0.6).attr("opacity",0.05);
 
   // ── Group mean lines & std bands ─────────────────────────────
+  // Decorative layers (bands + mean lines) get pointer-events="none" as an
+  // SVG attribute (not CSS style) so they never intercept hover events meant
+  // for the mean dots underneath — previously the second group's translucent
+  // std band would steal hover from the first group's dot when both sat close
+  // together in the same period.
   const tooltip = d3.select("#tooltip");
+
+  // Compute small horizontal offsets for dots that would otherwise overlap.
+  // At each period, if two groups' means are within `overlapThreshold` grade
+  // points (the visible dot diameter projected onto the y-axis), stagger their
+  // dots ±4 px so both stay individually hoverable. The mean LINES and BANDS
+  // are unaffected — only the dot positions are nudged.
+  const dotXOffset = {}; // `${gIdx}_${periodIdx}` -> pixel offset
+  const overlapThresholdPx = 14; // dot dia (12) + a couple of px of breathing room
+  PERIODS.forEach((p, pi) => {
+    const pts = groupStats
+      .map((g, gi) => ({ gi, y: yScale(g.stats[pi].mu) }))
+      .sort((a, b) => a.y - b.y);
+    for (let k = 1; k < pts.length; k++) {
+      if (Math.abs(pts[k].y - pts[k - 1].y) < overlapThresholdPx) {
+        dotXOffset[`${pts[k - 1].gi}_${pi}`] = -4;
+        dotXOffset[`${pts[k].gi}_${pi}`]     = +4;
+      }
+    }
+  });
 
   groupStats.forEach(({ val, gi, color, stats }, gIdx) => {
     // Std dev band — higher opacity for readability
@@ -108,6 +133,7 @@ export function drawProgression(data, groupBy = "sex") {
       .attr("class","std-band")
       .attr("d", areaGen)
       .attr("fill", color)
+      .attr("pointer-events","none")
       .style("opacity", "0.15");
 
     // Mean line
@@ -116,12 +142,14 @@ export function drawProgression(data, groupBy = "sex") {
       .attr("class","mean-line")
       .attr("d", meanLineGen(stats))
       .attr("stroke", color)
-      .attr("stroke-width", 3);
+      .attr("stroke-width", 3)
+      .attr("pointer-events","none");
 
     // Dots — no grade labels, just tooltip on hover
     stats.forEach((s, pi) => {
+      const xOff = dotXOffset[`${gIdx}_${pi}`] || 0;
       svg.append("circle").attr("class","mean-dot")
-        .attr("cx", xScale(s.p)).attr("cy", yScale(s.mu))
+        .attr("cx", xScale(s.p) + xOff).attr("cy", yScale(s.mu))
         .attr("r", 6).attr("fill", color).attr("stroke","var(--surface)").attr("stroke-width",2.5)
         .on("mouseover", function(event) {
           const trend = pi > 0 ? (s.mu - stats[pi-1].mu).toFixed(2) : null;
